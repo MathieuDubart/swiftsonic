@@ -56,6 +56,17 @@ public enum SwiftSonicError: Error, Sendable {
 
     /// A client-side configuration problem prevented building the request.
     case invalidConfiguration(String)
+
+    /// A cross-domain HTTP redirect was detected and blocked.
+    ///
+    /// Subsonic authentication credentials are embedded as query parameters in
+    /// every request URL. Following a redirect to a different host would silently
+    /// forward those credentials to an untrusted third party.
+    ///
+    /// `from` is the URL of the original request; `to` is the redirect destination
+    /// that was blocked. Neither field contains authentication credentials — only
+    /// the host and path components are relevant here.
+    case insecureRedirect(from: URL, to: URL)
 }
 
 // MARK: - LocalizedError conformance
@@ -80,6 +91,8 @@ extension SwiftSonicError: LocalizedError {
             return "Rate limited by \(serverHost ?? "unknown") on endpoint '\(endpoint)'"
         case .invalidConfiguration(let reason):
             return "Invalid configuration: \(reason)"
+        case .insecureRedirect(let from, let to):
+            return "Blocked cross-domain redirect from '\(from.host ?? "unknown")' to '\(to.host ?? "unknown")'"
         }
     }
 }
@@ -106,7 +119,7 @@ public extension SwiftSonicError {
             return true
         case .httpError(let statusCode, _, _):
             return (500...599).contains(statusCode)
-        case .api, .decoding, .invalidConfiguration:
+        case .api, .decoding, .invalidConfiguration, .insecureRedirect:
             return false
         }
     }

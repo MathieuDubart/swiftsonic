@@ -102,6 +102,13 @@ struct IsTransientTests {
         #expect(SwiftSonicError.api(apiError).isTransient == false)
         #expect(SwiftSonicError.invalidConfiguration("bad config").isTransient == false)
     }
+
+    @Test("insecureRedirect is never transient")
+    func insecureRedirectIsNotTransient() {
+        let from = URL(string: "https://music.example.com/rest/ping")!
+        let to   = URL(string: "https://evil.example.com/steal")!
+        #expect(SwiftSonicError.insecureRedirect(from: from, to: to).isTransient == false)
+    }
 }
 
 // MARK: - SwiftSonicError.isAuthenticationFailure
@@ -141,6 +148,13 @@ struct IsAuthenticationFailureTests {
         #expect(SwiftSonicError.network(URLError(.timedOut)).isAuthenticationFailure == false)
         #expect(SwiftSonicError.rateLimited(retryAfter: nil, endpoint: "ping", serverHost: "test.example.com").isAuthenticationFailure == false)
     }
+
+    @Test("insecureRedirect is not an authentication failure")
+    func insecureRedirectNotAuthFailure() {
+        let from = URL(string: "https://music.example.com/rest/ping")!
+        let to   = URL(string: "https://evil.example.com/steal")!
+        #expect(SwiftSonicError.insecureRedirect(from: from, to: to).isAuthenticationFailure == false)
+    }
 }
 
 // MARK: - SwiftSonicError.suggestedRetryDelay
@@ -163,6 +177,9 @@ struct SuggestedRetryDelayTests {
     func otherCasesReturnNil() {
         #expect(SwiftSonicError.network(URLError(.timedOut)).suggestedRetryDelay == nil)
         #expect(SwiftSonicError.httpError(statusCode: 503, endpoint: "ping", serverHost: "test.example.com").suggestedRetryDelay == nil)
+        let from = URL(string: "https://music.example.com/rest/ping")!
+        let to   = URL(string: "https://evil.example.com/steal")!
+        #expect(SwiftSonicError.insecureRedirect(from: from, to: to).suggestedRetryDelay == nil)
     }
 }
 
