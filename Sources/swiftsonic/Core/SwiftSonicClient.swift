@@ -318,14 +318,16 @@ public actor SwiftSonicClient {
                 .flatMap { TimeInterval($0) }
             throw SwiftSonicError.rateLimited(
                 retryAfter: retryAfter,
-                requestURL: request.url ?? configuration.serverURL
+                endpoint: endpoint,
+                serverHost: configuration.serverURL.host
             )
         }
 
         guard (200 ..< 300).contains(httpResponse.statusCode) else {
             throw SwiftSonicError.httpError(
                 statusCode: httpResponse.statusCode,
-                requestURL: request.url ?? configuration.serverURL
+                endpoint: endpoint,
+                serverHost: configuration.serverURL.host
             )
         }
 
@@ -361,7 +363,8 @@ public actor SwiftSonicClient {
                 code: SubsonicErrorCode(rawValue: rawError.code) ?? .unknown,
                 message: rawError.message,
                 helpURL: rawError.helpUrl.flatMap { URL(string: $0) },
-                requestURL: request.url ?? configuration.serverURL
+                endpoint: endpoint,
+                serverHost: configuration.serverURL.host
             ))
         }
 

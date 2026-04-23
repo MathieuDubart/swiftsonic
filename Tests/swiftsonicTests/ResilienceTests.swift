@@ -55,8 +55,6 @@ struct RetryPolicyDelayTests {
 @Suite("SwiftSonicError.isTransient")
 struct IsTransientTests {
 
-    private let url = URL(string: "https://test.example.com")!
-
     @Test("transient URLError codes return true")
     func transientNetworkErrors() {
         let transientCodes: [URLError.Code] = [
@@ -85,22 +83,22 @@ struct IsTransientTests {
 
     @Test("rateLimited is always transient")
     func rateLimitedIsTransient() {
-        #expect(SwiftSonicError.rateLimited(retryAfter: nil, requestURL: url).isTransient == true)
-        #expect(SwiftSonicError.rateLimited(retryAfter: 5.0, requestURL: url).isTransient == true)
+        #expect(SwiftSonicError.rateLimited(retryAfter: nil, endpoint: "ping", serverHost: "test.example.com").isTransient == true)
+        #expect(SwiftSonicError.rateLimited(retryAfter: 5.0, endpoint: "ping", serverHost: "test.example.com").isTransient == true)
     }
 
     @Test("HTTP 5xx is transient, 4xx is not")
     func httpErrors() {
-        #expect(SwiftSonicError.httpError(statusCode: 500, requestURL: url).isTransient == true)
-        #expect(SwiftSonicError.httpError(statusCode: 503, requestURL: url).isTransient == true)
-        #expect(SwiftSonicError.httpError(statusCode: 400, requestURL: url).isTransient == false)
-        #expect(SwiftSonicError.httpError(statusCode: 401, requestURL: url).isTransient == false)
-        #expect(SwiftSonicError.httpError(statusCode: 404, requestURL: url).isTransient == false)
+        #expect(SwiftSonicError.httpError(statusCode: 500, endpoint: "ping", serverHost: "test.example.com").isTransient == true)
+        #expect(SwiftSonicError.httpError(statusCode: 503, endpoint: "ping", serverHost: "test.example.com").isTransient == true)
+        #expect(SwiftSonicError.httpError(statusCode: 400, endpoint: "ping", serverHost: "test.example.com").isTransient == false)
+        #expect(SwiftSonicError.httpError(statusCode: 401, endpoint: "ping", serverHost: "test.example.com").isTransient == false)
+        #expect(SwiftSonicError.httpError(statusCode: 404, endpoint: "ping", serverHost: "test.example.com").isTransient == false)
     }
 
     @Test("API and configuration errors are never transient")
     func apiAndConfigNeverTransient() {
-        let apiError = SubsonicAPIError(code: .generic, message: "error", helpURL: nil, requestURL: url)
+        let apiError = SubsonicAPIError(code: .generic, message: "error", helpURL: nil, endpoint: "ping", serverHost: "test.example.com")
         #expect(SwiftSonicError.api(apiError).isTransient == false)
         #expect(SwiftSonicError.invalidConfiguration("bad config").isTransient == false)
     }
@@ -110,8 +108,6 @@ struct IsTransientTests {
 
 @Suite("SwiftSonicError.isAuthenticationFailure")
 struct IsAuthenticationFailureTests {
-
-    private let url = URL(string: "https://test.example.com")!
 
     @Test("API auth error codes return true")
     func apiAuthErrors() {
@@ -124,7 +120,7 @@ struct IsAuthenticationFailureTests {
             .unauthorized
         ]
         for code in authCodes {
-            let apiError = SubsonicAPIError(code: code, message: "auth error", helpURL: nil, requestURL: url)
+            let apiError = SubsonicAPIError(code: code, message: "auth error", helpURL: nil, endpoint: "ping", serverHost: "test.example.com")
             #expect(
                 SwiftSonicError.api(apiError).isAuthenticationFailure == true,
                 "Expected SubsonicErrorCode.\(code) to be an auth failure"
@@ -134,16 +130,16 @@ struct IsAuthenticationFailureTests {
 
     @Test("HTTP 401 and 403 are authentication failures")
     func httpAuthErrors() {
-        #expect(SwiftSonicError.httpError(statusCode: 401, requestURL: url).isAuthenticationFailure == true)
-        #expect(SwiftSonicError.httpError(statusCode: 403, requestURL: url).isAuthenticationFailure == true)
-        #expect(SwiftSonicError.httpError(statusCode: 500, requestURL: url).isAuthenticationFailure == false)
-        #expect(SwiftSonicError.httpError(statusCode: 404, requestURL: url).isAuthenticationFailure == false)
+        #expect(SwiftSonicError.httpError(statusCode: 401, endpoint: "ping", serverHost: "test.example.com").isAuthenticationFailure == true)
+        #expect(SwiftSonicError.httpError(statusCode: 403, endpoint: "ping", serverHost: "test.example.com").isAuthenticationFailure == true)
+        #expect(SwiftSonicError.httpError(statusCode: 500, endpoint: "ping", serverHost: "test.example.com").isAuthenticationFailure == false)
+        #expect(SwiftSonicError.httpError(statusCode: 404, endpoint: "ping", serverHost: "test.example.com").isAuthenticationFailure == false)
     }
 
     @Test("network and rate-limit errors are not authentication failures")
     func networkNotAuthFailure() {
         #expect(SwiftSonicError.network(URLError(.timedOut)).isAuthenticationFailure == false)
-        #expect(SwiftSonicError.rateLimited(retryAfter: nil, requestURL: url).isAuthenticationFailure == false)
+        #expect(SwiftSonicError.rateLimited(retryAfter: nil, endpoint: "ping", serverHost: "test.example.com").isAuthenticationFailure == false)
     }
 }
 
@@ -152,23 +148,21 @@ struct IsAuthenticationFailureTests {
 @Suite("SwiftSonicError.suggestedRetryDelay")
 struct SuggestedRetryDelayTests {
 
-    private let url = URL(string: "https://test.example.com")!
-
     @Test("rateLimited with Retry-After returns the parsed delay")
     func rateLimitedWithRetryAfter() {
-        #expect(SwiftSonicError.rateLimited(retryAfter: 5.0, requestURL: url).suggestedRetryDelay == 5.0)
-        #expect(SwiftSonicError.rateLimited(retryAfter: 0.0, requestURL: url).suggestedRetryDelay == 0.0)
+        #expect(SwiftSonicError.rateLimited(retryAfter: 5.0, endpoint: "ping", serverHost: "test.example.com").suggestedRetryDelay == 5.0)
+        #expect(SwiftSonicError.rateLimited(retryAfter: 0.0, endpoint: "ping", serverHost: "test.example.com").suggestedRetryDelay == 0.0)
     }
 
     @Test("rateLimited without Retry-After returns nil")
     func rateLimitedWithoutRetryAfter() {
-        #expect(SwiftSonicError.rateLimited(retryAfter: nil, requestURL: url).suggestedRetryDelay == nil)
+        #expect(SwiftSonicError.rateLimited(retryAfter: nil, endpoint: "ping", serverHost: "test.example.com").suggestedRetryDelay == nil)
     }
 
     @Test("other error cases always return nil")
     func otherCasesReturnNil() {
         #expect(SwiftSonicError.network(URLError(.timedOut)).suggestedRetryDelay == nil)
-        #expect(SwiftSonicError.httpError(statusCode: 503, requestURL: url).suggestedRetryDelay == nil)
+        #expect(SwiftSonicError.httpError(statusCode: 503, endpoint: "ping", serverHost: "test.example.com").suggestedRetryDelay == nil)
     }
 }
 
