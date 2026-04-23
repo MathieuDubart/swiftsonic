@@ -1,0 +1,13 @@
+{
+  "subsonic-response": {
+    "status": "ok",
+    "version": "1.16.1",
+    "type": "navidrome",
+    "serverVersion": "0.53.3",
+    "lyrics": {
+      "artist": "Nine Inch Nails",
+      "title": "Hurt",
+      "value": "I hurt myself today\nTo see if I still feel\nI focus on the pain\nThe only thing that's real"
+    }
+  }
+}
