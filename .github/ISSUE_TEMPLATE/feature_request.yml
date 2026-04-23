@@ -1,0 +1,43 @@
+name: Feature request
+description: Suggest a new endpoint, API, or improvement.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting an improvement. Please fill in the fields below.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / motivation
+      description: What problem does this solve? What use-case does it unlock?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the API or behaviour you have in mind.
+      render: swift
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Other approaches you've thought about, and why you prefer your proposal.
+
+  - type: checkboxes
+    id: subsonic_spec
+    attributes:
+      label: Subsonic / OpenSubsonic spec
+      options:
+        - label: This feature is part of the official Subsonic or OpenSubsonic API specification.
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
