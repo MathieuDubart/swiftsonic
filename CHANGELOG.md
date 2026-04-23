@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.0] — 2026-04-23
+
+### Added
+- **Scan endpoints** — `getScanStatus()`, `startScan()` → `ScanStatus`; lenient ISO 8601 parser handles Navidrome's nanosecond-precision timestamps
+- **Internet Radio endpoints** — `getInternetRadioStations()`, `createInternetRadioStation(streamURL:name:homepageURL:)`, `updateInternetRadioStation(id:streamURL:name:homepageURL:)`, `deleteInternetRadioStation(id:)` → `InternetRadioStation`
+- **Bookmark endpoints** — `getBookmarks()`, `createBookmark(songId:position:comment:)`, `deleteBookmark(songId:)` → `Bookmark`; position expressed as `TimeInterval` (seconds), converted to/from milliseconds on the wire
+- **Play Queue endpoints** — `getPlayQueue()` → `SavedPlayQueue?` (nil when no queue saved), `savePlayQueue(ids:current:position:)`; position in seconds, wire format milliseconds
+- **Share endpoints** — `getShares()`, `createShare(ids:description:expires:)`, `updateShare(id:description:expires:)`, `deleteShare(id:)` → `Share`; `expires` expressed as `Date`, converted to/from milliseconds-since-epoch on the wire
+- **Podcast endpoints** — `getPodcasts(id:includeEpisodes:)`, `getNewestPodcasts(count:)`, `refreshPodcasts()`, `createPodcastChannel(url:)`, `deletePodcastChannel(id:)`, `downloadPodcastEpisode(id:)`, `deletePodcastEpisode(id:)` → `PodcastChannel` / `PodcastEpisode`; `PodcastChannelStatus` and `PodcastEpisodeStatus` enums with `.unknown` fallback for forward compatibility
+- **Jukebox endpoints** — 11 separate methods (`jukeboxGet`, `jukeboxStatus`, `jukeboxStart`, `jukeboxStop`, `jukeboxSkip`, `jukeboxAdd`, `jukeboxSet`, `jukeboxRemove`, `jukeboxClear`, `jukeboxShuffle`, `jukeboxSetGain`) → `JukeboxPlaylist` / `JukeboxStatus`
+- **Integration tests** extended with `getScanStatus`, `getInternetRadioStations`, `getBookmarks`, `getPlayQueue` live checks against `demo.navidrome.org`
+- **169 tests** across 63 suites (up from 110 in v0.2.0)
+
+---
+
 ## [0.2.0] — 2026-04-23
 
 ### Added
@@ -42,5 +57,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ResilienceTests` — white-box tests for retry math and error classification
 - MIT licence, `CONTRIBUTING.md`, `SECURITY.md`
 
+[0.3.0]: https://github.com/MathieuDubart/swiftsonic/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/MathieuDubart/swiftsonic/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/MathieuDubart/swiftsonic/releases/tag/v0.1.0
