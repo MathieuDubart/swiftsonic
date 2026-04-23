@@ -34,6 +34,26 @@ public enum AuthMethod: Sendable {
     case apiKey(String)
 }
 
+// MARK: - AuthMethod safe string representations
+
+/// Prevents credentials from appearing in logs, debugger output, or crash reports.
+///
+/// Both `CustomStringConvertible` and `CustomDebugStringConvertible` are implemented
+/// so that `String(describing:)`, `print()`, `debugPrint()`, and the Xcode debugger
+/// Variables panel all produce redacted output.
+extension AuthMethod: CustomStringConvertible, CustomDebugStringConvertible {
+    public var description: String {
+        switch self {
+        case .tokenAuth(let username, _, _):
+            return "tokenAuth(username: \"\(username)\", password: \"***\")"
+        case .apiKey:
+            return "apiKey(\"***\")"
+        }
+    }
+
+    public var debugDescription: String { description }
+}
+
 // MARK: - Server configuration
 
 /// All static parameters required to communicate with a Subsonic/OpenSubsonic server.
@@ -146,4 +166,15 @@ public struct ServerConfiguration: Sendable {
             resourceTimeout: resourceTimeout
         )
     }
+}
+
+// MARK: - ServerConfiguration safe string representations
+
+/// Prevents the auth credentials from appearing in logs, debugger output, or crash reports.
+extension ServerConfiguration: CustomStringConvertible, CustomDebugStringConvertible {
+    public var description: String {
+        "ServerConfiguration(serverURL: \(serverURL), auth: \(auth))"
+    }
+
+    public var debugDescription: String { description }
 }
