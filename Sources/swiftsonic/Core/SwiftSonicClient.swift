@@ -71,6 +71,12 @@ public actor SwiftSonicClient {
     private let metricsCollector: (any SwiftSonicMetricsCollector)?
     private let logger: Logger
 
+    /// A dedicated security logger that always fires, regardless of `logSubsystem`.
+    ///
+    /// Using a fixed subsystem ensures that security warnings (e.g., plain-HTTP connections)
+    /// are always visible in Console.app even when the caller hasn't opted in to logging.
+    private static let securityLogger = Logger(subsystem: "com.swiftsonic", category: "security")
+
     // MARK: - Initializers
 
     /// Creates a client with full control over configuration, transport, and behaviour.
@@ -117,6 +123,19 @@ public actor SwiftSonicClient {
             self.logger = Logger(subsystem: subsystem, category: "SwiftSonicClient")
         } else {
             self.logger = Logger(.disabled)
+        }
+
+        // D2 — Warn when the server URL uses plain HTTP.
+        // This check runs unconditionally (via securityLogger) so the warning is
+        // always visible in Console.app regardless of the caller's logSubsystem setting.
+        if configuration.serverURL.scheme?.lowercased() == "http" {
+            SwiftSonicClient.securityLogger.warning(
+                """
+                SwiftSonicClient: connecting to \(configuration.serverURL.host ?? "unknown", privacy: .public) \
+                over plain HTTP. Authentication credentials will be transmitted without TLS encryption. \
+                Use HTTPS in production.
+                """
+            )
         }
     }
 
