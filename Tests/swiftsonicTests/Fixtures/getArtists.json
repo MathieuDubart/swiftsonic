@@ -1,0 +1,43 @@
+{
+  "subsonic-response": {
+    "status": "ok",
+    "version": "1.16.1",
+    "type": "navidrome",
+    "serverVersion": "0.53.3 (67f8f2c3)",
+    "openSubsonic": true,
+    "artists": {
+      "ignoredArticles": "The El La Los Las Le Les",
+      "index": [
+        {
+          "name": "A",
+          "artist": [
+            {
+              "id": "1",
+              "name": "ABBA",
+              "coverArt": "ar-1",
+              "albumCount": 5,
+              "starred": "2023-01-15T12:00:00Z"
+            }
+          ]
+        },
+        {
+          "name": "B",
+          "artist": [
+            {
+              "id": "2",
+              "name": "Beatles, The",
+              "coverArt": "ar-2",
+              "albumCount": 13
+            },
+            {
+              "id": "3",
+              "name": "Bob Dylan",
+              "coverArt": "ar-3",
+              "albumCount": 8
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

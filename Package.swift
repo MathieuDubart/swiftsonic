@@ -1,26 +1,39 @@
-// swift-tools-version: 6.3
-// The swift-tools-version declares the minimum version of Swift required to build this package.
+// swift-tools-version: 6.0
+// Package.swift — SwiftSonic
+//
+// Declares the SwiftSonic library target and its test target.
+// No external dependencies: only Apple's built-in frameworks are used.
 
 import PackageDescription
 
 let package = Package(
     name: "swiftsonic",
+    platforms: [
+        .iOS(.v16),
+        .macOS(.v13),
+        .tvOS(.v16),
+        .watchOS(.v9),
+        .visionOS(.v1),
+    ],
     products: [
-        // Products define the executables and libraries a package produces, making them visible to other packages.
-        .library(
-            name: "swiftsonic",
-            targets: ["swiftsonic"]
-        ),
+        /// The SwiftSonic library. Add this product to your package dependencies.
+        .library(name: "SwiftSonic", targets: ["SwiftSonic"]),
     ],
     targets: [
-        // Targets are the basic building blocks of a package, defining a module or a test suite.
-        // Targets can depend on other targets in this package and products from dependencies.
         .target(
-            name: "swiftsonic"
+            name: "SwiftSonic",
+            path: "Sources/SwiftSonic",
+            swiftSettings: [
+                .enableExperimentalFeature("StrictConcurrency"),
+            ]
         ),
         .testTarget(
-            name: "swiftsonicTests",
-            dependencies: ["swiftsonic"]
+            name: "SwiftSonicTests",
+            dependencies: ["SwiftSonic"],
+            path: "Tests/SwiftSonicTests",
+            resources: [
+                .copy("Fixtures"),
+            ]
         ),
     ],
     swiftLanguageModes: [.v6]

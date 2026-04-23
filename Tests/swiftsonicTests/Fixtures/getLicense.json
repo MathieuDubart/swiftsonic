@@ -1,0 +1,14 @@
+{
+  "subsonic-response": {
+    "status": "ok",
+    "version": "1.16.1",
+    "type": "navidrome",
+    "serverVersion": "0.53.3 (67f8f2c3)",
+    "openSubsonic": true,
+    "license": {
+      "valid": true,
+      "email": "demo@navidrome.org",
+      "licenseExpires": "2099-12-31T00:00:00Z"
+    }
+  }
+}
