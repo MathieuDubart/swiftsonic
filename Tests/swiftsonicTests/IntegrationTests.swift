@@ -121,6 +121,17 @@ struct IntegrationTests {
         #expect(bookmarks.isEmpty || !bookmarks.isEmpty)  // either is valid
     }
 
+    // MARK: - Play Queue
+
+    @Test("getPlayQueue returns without error")
+    func getPlayQueue() async throws {
+        // The demo account may or may not have a saved queue — both nil and a
+        // valid SavedPlayQueue are acceptable. This also exercises Navidrome's
+        // nanosecond-precision ISO8601 dates in real responses.
+        let queue = try await client.getPlayQueue()
+        _ = queue  // nil or populated — both valid
+    }
+
     // MARK: - Search
 
     @Test("search3 returns at least one result for a broad query")
