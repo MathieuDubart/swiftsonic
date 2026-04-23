@@ -16,12 +16,18 @@ import Foundation
 /// The default implementation is ``URLSessionTransport``, which wraps `URLSession`.
 /// Inject a custom conformance to intercept or replace network calls.
 ///
+/// > Warning: **Never log `request.url?.absoluteString` or the full `URLRequest`.**
+/// > Subsonic query strings contain authentication credentials (`u`, `t`, `s`, or `apiKey`).
+/// > Log only safe fields such as the HTTP method, path component, or response status code.
+///
 /// ```swift
 /// struct LoggingTransport: HTTPTransport {
 ///     let underlying: any HTTPTransport
 ///
 ///     func data(for request: URLRequest) async throws -> (Data, HTTPURLResponse) {
-///         print("→ \(request.url?.absoluteString ?? "")")
+///         // Safe: log only the path, never the full URL (which contains credentials).
+///         let path = request.url?.path ?? "(unknown)"
+///         print("→ \(request.httpMethod ?? "GET") \(path)")
 ///         let (data, response) = try await underlying.data(for: request)
 ///         print("← \(response.statusCode)")
 ///         return (data, response)
