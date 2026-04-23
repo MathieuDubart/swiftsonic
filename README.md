@@ -37,6 +37,8 @@ Every existing Swift Subsonic client is either abandoned, built on Alamofire, or
 | Typed error codes | ✅ | ❌ | ❌ |
 | Injectable transport | ✅ | ❌ | ❌ |
 | Actively maintained | ✅ | ⚠️ | ❌ |
+| Automatic retry | ✅ | ❌ | ❌ |
+| Observability hook | ✅ | ❌ | ❌ |
 
 ---
 
@@ -205,6 +207,68 @@ do {
 }
 ```
 
+### Retry and resilience
+
+SwiftSonicClient automatically retries transient failures (network errors, HTTP 5xx, HTTP 429) with exponential back-off. The default policy makes up to 3 attempts:
+
+```swift
+// Default: 3 attempts, ~0.5s → ~1s → ~2s (±20% jitter)
+let client = SwiftSonicClient(configuration: config)
+
+// Custom policy
+let client = SwiftSonicClient(
+    configuration: config,
+    retryPolicy: RetryPolicy(maxAttempts: 5, baseDelay: 1.0)
+)
+
+// Disable retries entirely
+let client = SwiftSonicClient(
+    configuration: config,
+    retryPolicy: .none
+)
+```
+
+Non-transient errors (authentication failures, 4xx, decoding errors) are **never** retried. A 429 response honours the `Retry-After` header when present.
+
+### Observability
+
+#### Logging
+
+Pass `logSubsystem:` to enable `os.Logger` output under the `SwiftSonicClient` category. The client logs every attempt, retry, success, and failure — visible in Console.app and Instruments.
+
+```swift
+let client = SwiftSonicClient(
+    configuration: config,
+    logSubsystem: "com.example.MyApp"   // silent by default
+)
+```
+
+#### Metrics hook
+
+Implement `SwiftSonicMetricsCollector` to integrate with your observability backend (Datadog, Sentry, custom analytics):
+
+```swift
+final class AppMetrics: SwiftSonicMetricsCollector, @unchecked Sendable {
+    func record(_ event: SwiftSonicRequestEvent) {
+        switch event {
+        case .succeeded(let endpoint, _, let duration):
+            Analytics.track("api_request", ["endpoint": endpoint, "duration": duration])
+        case .failed(let endpoint, _, let error, _):
+            Crashlytics.recordError(error, userInfo: ["endpoint": endpoint])
+        case .retryScheduled(let endpoint, let attempt, let delay):
+            print("[\(endpoint)] retry \(attempt + 1) in \(String(format: "%.2f", delay))s")
+        default:
+            break
+        }
+    }
+}
+
+let client = SwiftSonicClient(
+    configuration: config,
+    metricsCollector: AppMetrics()
+)
+```
+
 ### Custom transport (logging, cert pinning, proxies)
 
 ```swift
@@ -302,7 +366,8 @@ let client = SwiftSonicClient(
 - **Sendable everywhere** — all public types conform to `Sendable`, zero warnings in strict concurrency
 - **Injectable transport** — swap out `URLSession` for testing, proxying, or cert pinning
 - **No UI coupling** — `Data` and `URL` only, never `UIImage` or `SwiftUI.Image`
-- **Silent by default** — pass `logSubsystem:` to opt into `os.Logger` output
+- **Resilient by default** — 3-attempt exponential back-off retry, configurable via `RetryPolicy`
+- **Observable** — `logSubsystem:` for `os.Logger` output; `metricsCollector:` for custom metrics
 
 ---
 

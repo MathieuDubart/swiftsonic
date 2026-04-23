@@ -219,6 +219,7 @@ public actor SwiftSonicClient {
                 )
                 let duration = Date().timeIntervalSince(startTime)
                 metricsCollector?.record(.succeeded(endpoint: endpoint, attempt: attempt, duration: duration))
+                logger.debug("✓ \(endpoint) succeeded in \(duration, format: .fixed(precision: 3))s")
                 return envelope
 
             } catch {
@@ -232,7 +233,10 @@ public actor SwiftSonicClient {
                 let isRetryable = swiftSonicError?.isTransient ?? false
                 let hasAttemptsLeft = attempt + 1 < retryPolicy.maxAttempts
 
-                guard isRetryable && hasAttemptsLeft else { throw error }
+                guard isRetryable && hasAttemptsLeft else {
+                    logger.debug("✗ \(endpoint) failed on attempt \(attempt + 1)")
+                    throw error
+                }
 
                 let delay = swiftSonicError?.suggestedRetryDelay
                     ?? retryPolicy.delay(for: attempt)
