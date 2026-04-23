@@ -111,6 +111,16 @@ struct IntegrationTests {
         #expect(stations.isEmpty || !stations.isEmpty)  // either is valid
     }
 
+    // MARK: - Bookmarks
+
+    @Test("getBookmarks returns without error")
+    func getBookmarks() async throws {
+        // The demo account may or may not have bookmarks — verify the call succeeds.
+        // This also exercises Navidrome's nanosecond-precision ISO8601 dates in real responses.
+        let bookmarks = try await client.getBookmarks()
+        #expect(bookmarks.isEmpty || !bookmarks.isEmpty)  // either is valid
+    }
+
     // MARK: - Search
 
     @Test("search3 returns at least one result for a broad query")
