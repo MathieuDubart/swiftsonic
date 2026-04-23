@@ -162,9 +162,10 @@ public actor SwiftSonicClient {
     /// ``SwiftSonicError`` on any failure.
     func performDecode<P: SubsonicPayload>(
         endpoint: String,
-        params: [String: String]
+        params: [String: String],
+        multiParams: [String: [String]] = [:]
     ) async throws -> SubsonicEnvelope<P> {
-        let request = try requestBuilder.request(endpoint: endpoint, params: params)
+        let request = try requestBuilder.request(endpoint: endpoint, params: params, multiParams: multiParams)
         logger.debug("→ \(endpoint) \(params)")
 
         let (data, httpResponse): (Data, HTTPURLResponse)
@@ -204,8 +205,12 @@ public actor SwiftSonicClient {
 
     /// Performs a request for endpoints with no payload (ping, star, etc.).
     @discardableResult
-    func performVoid(endpoint: String, params: [String: String] = [:]) async throws -> SubsonicEnvelope<EmptyPayload> {
-        try await performDecode(endpoint: endpoint, params: params)
+    func performVoid(
+        endpoint: String,
+        params: [String: String] = [:],
+        multiParams: [String: [String]] = [:]
+    ) async throws -> SubsonicEnvelope<EmptyPayload> {
+        try await performDecode(endpoint: endpoint, params: params, multiParams: multiParams)
     }
 
     /// Returns the raw envelope (used by fetchCapabilities to read top-level fields).
@@ -213,6 +218,6 @@ public actor SwiftSonicClient {
         endpoint: String,
         params: [String: String]
     ) async throws -> SubsonicEnvelope<EmptyPayload> {
-        try await performDecode(endpoint: endpoint, params: params)
+        try await performDecode(endpoint: endpoint, params: params, multiParams: [:])
     }
 }

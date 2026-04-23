@@ -1,0 +1,45 @@
+{
+  "subsonic-response": {
+    "status": "ok",
+    "version": "1.16.1",
+    "playlist": {
+      "id": "1",
+      "name": "My Favourites",
+      "owner": "testuser",
+      "public": true,
+      "songCount": 2,
+      "duration": 544,
+      "coverArt": "pl-1",
+      "created": "2023-01-15T10:00:00Z",
+      "changed": "2023-06-20T14:30:00Z",
+      "entry": [
+        {
+          "id": "101",
+          "title": "Ring Ring",
+          "artist": "ABBA",
+          "artistId": "1",
+          "album": "Ring Ring",
+          "albumId": "10",
+          "track": 1,
+          "duration": 190,
+          "year": 1973,
+          "genre": "Pop",
+          "coverArt": "al-10"
+        },
+        {
+          "id": "201",
+          "title": "Bohemian Rhapsody",
+          "artist": "Queen",
+          "artistId": "2",
+          "album": "A Night at the Opera",
+          "albumId": "20",
+          "track": 11,
+          "duration": 354,
+          "year": 1975,
+          "genre": "Rock",
+          "coverArt": "al-20"
+        }
+      ]
+    }
+  }
+}

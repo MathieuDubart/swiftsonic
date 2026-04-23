@@ -1,0 +1,47 @@
+{
+  "subsonic-response": {
+    "status": "ok",
+    "version": "1.16.1",
+    "type": "navidrome",
+    "openSubsonic": true,
+    "searchResult3": {
+      "artist": [
+        {
+          "id": "2",
+          "name": "Queen",
+          "albumCount": 15,
+          "coverArt": "ar-2"
+        }
+      ],
+      "album": [
+        {
+          "id": "20",
+          "name": "A Night at the Opera",
+          "artist": "Queen",
+          "artistId": "2",
+          "coverArt": "al-20",
+          "songCount": 12,
+          "duration": 2580,
+          "year": 1975
+        }
+      ],
+      "song": [
+        {
+          "id": "201",
+          "title": "Bohemian Rhapsody",
+          "artist": "Queen",
+          "artistId": "2",
+          "album": "A Night at the Opera",
+          "albumId": "20",
+          "track": 11,
+          "duration": 354,
+          "year": 1975,
+          "genre": "Rock",
+          "coverArt": "al-20",
+          "bitRate": 320,
+          "suffix": "mp3"
+        }
+      ]
+    }
+  }
+}

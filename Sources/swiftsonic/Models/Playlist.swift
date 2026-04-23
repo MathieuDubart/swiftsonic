@@ -1,0 +1,60 @@
+// Playlist.swift — SwiftSonic
+//
+// Models for playlist-related endpoints: getPlaylists, getPlaylist,
+// createPlaylist, updatePlaylist, deletePlaylist.
+
+import Foundation
+
+// MARK: - Playlist
+
+/// A Subsonic playlist.
+public struct Playlist: Decodable, Sendable, Identifiable {
+
+    // MARK: Core fields
+
+    public let id: String
+    public let name: String
+    public let comment: String?
+    public let owner: String?
+    /// Whether the playlist is publicly visible. JSON key is `"public"`.
+    public let isPublic: Bool?
+    public let songCount: Int
+    /// Total duration of the playlist in seconds.
+    public let duration: Int
+    public let created: Date?
+    public let changed: Date?
+    public let coverArt: String?
+
+    // MARK: CodingKeys
+
+    enum CodingKeys: String, CodingKey {
+        case id, name, comment, owner
+        case isPublic = "public"
+        case songCount, duration, created, changed, coverArt
+    }
+}
+
+// MARK: - PlaylistWithSongs
+
+/// A playlist that includes its track list (returned by `getPlaylist`).
+public struct PlaylistWithSongs: Decodable, Sendable, Identifiable {
+
+    public let id: String
+    public let name: String
+    public let comment: String?
+    public let owner: String?
+    public let isPublic: Bool?
+    public let songCount: Int
+    public let duration: Int
+    public let created: Date?
+    public let changed: Date?
+    public let coverArt: String?
+    /// The ordered list of tracks in this playlist.
+    public let entry: [Song]?
+
+    enum CodingKeys: String, CodingKey {
+        case id, name, comment, owner
+        case isPublic = "public"
+        case songCount, duration, created, changed, coverArt, entry
+    }
+}

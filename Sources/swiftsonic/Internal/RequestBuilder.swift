@@ -41,9 +41,15 @@ final class RequestBuilder: Sendable {
     /// - Parameters:
     ///   - endpoint: The Subsonic endpoint name (e.g. `"getArtists"`).
     ///   - params: Endpoint-specific query parameters (do not include auth or common params).
+    ///   - multiParams: Parameters that can appear multiple times (e.g. `songIdToAdd`).
+    ///     Each key maps to an array of values; one `URLQueryItem` is appended per value.
     /// - Returns: A ready-to-execute `URLRequest`.
     /// - Throws: `SwiftSonicError.invalidConfiguration` if the URL cannot be constructed.
-    func request(endpoint: String, params: [String: String] = [:]) throws -> URLRequest {
+    func request(
+        endpoint: String,
+        params: [String: String] = [:],
+        multiParams: [String: [String]] = [:]
+    ) throws -> URLRequest {
         var components = URLComponents()
         components.scheme = configuration.serverURL.scheme
         components.host = configuration.serverURL.host
@@ -71,9 +77,16 @@ final class RequestBuilder: Sendable {
             queryItems.append(URLQueryItem(name: "apiKey", value: key))
         }
 
-        // Endpoint-specific parameters
+        // Endpoint-specific scalar parameters
         for (key, value) in params {
             queryItems.append(URLQueryItem(name: key, value: value))
+        }
+
+        // Endpoint-specific multi-value parameters (one item per value)
+        for (key, values) in multiParams {
+            for value in values {
+                queryItems.append(URLQueryItem(name: key, value: value))
+            }
         }
 
         components.queryItems = queryItems
@@ -96,7 +109,7 @@ final class RequestBuilder: Sendable {
     ///   - params: Endpoint-specific query parameters.
     /// - Returns: A fully authenticated `URL`, or `nil` if the URL cannot be constructed.
     func mediaURL(endpoint: String, params: [String: String] = [:]) -> URL? {
-        (try? request(endpoint: endpoint, params: params))?.url
+        (try? request(endpoint: endpoint, params: params, multiParams: [:]))?.url
     }
 }
 

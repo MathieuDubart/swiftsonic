@@ -116,6 +116,32 @@ for index in indexes {
 let folders = try await client.getMusicFolders()
 ```
 
+### Search
+
+```swift
+let results = try await client.search3("bohemian", songCount: 10)
+print(results.song?.first?.title)   // "Bohemian Rhapsody"
+print(results.artist?.first?.name)  // "Queen"
+```
+
+### Playlists
+
+```swift
+// List all playlists
+let playlists = try await client.getPlaylists()
+
+// Fetch a specific playlist with its tracks
+let playlist = try await client.getPlaylist(id: "42")
+for song in playlist.entry ?? [] {
+    print("\(song.title) — \(song.artist ?? "")")
+}
+
+// Create and modify
+let newPlaylist = try await client.createPlaylist(name: "Road Trip", songIds: ["101", "202"])
+try await client.updatePlaylist(id: newPlaylist.id, isPublic: true, songIdsToAdd: ["303"])
+try await client.deletePlaylist(id: newPlaylist.id)
+```
+
 ### Error handling
 
 ```swift
@@ -193,16 +219,16 @@ let client = SwiftSonicClient(
 ### Search
 | Endpoint | Status |
 |---|---|
-| `search3` | ❌ |
+| `search3` | ✅ |
 
 ### Playlists
 | Endpoint | Status |
 |---|---|
-| `getPlaylists` | ❌ |
-| `getPlaylist` | ❌ |
-| `createPlaylist` | ❌ |
-| `updatePlaylist` | ❌ |
-| `deletePlaylist` | ❌ |
+| `getPlaylists` | ✅ |
+| `getPlaylist` | ✅ |
+| `createPlaylist` | ✅ |
+| `updatePlaylist` | ✅ |
+| `deletePlaylist` | ✅ |
 
 ### Media URLs
 | Endpoint | Status |

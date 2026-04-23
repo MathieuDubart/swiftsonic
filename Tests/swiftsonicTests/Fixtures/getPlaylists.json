@@ -1,0 +1,31 @@
+{
+  "subsonic-response": {
+    "status": "ok",
+    "version": "1.16.1",
+    "playlists": {
+      "playlist": [
+        {
+          "id": "1",
+          "name": "My Favourites",
+          "owner": "testuser",
+          "public": true,
+          "songCount": 42,
+          "duration": 9180,
+          "coverArt": "pl-1",
+          "created": "2023-01-15T10:00:00Z",
+          "changed": "2023-06-20T14:30:00Z"
+        },
+        {
+          "id": "2",
+          "name": "Workout Mix",
+          "owner": "testuser",
+          "public": false,
+          "songCount": 20,
+          "duration": 4200,
+          "created": "2023-03-01T08:00:00Z",
+          "changed": "2023-03-01T08:00:00Z"
+        }
+      ]
+    }
+  }
+}
