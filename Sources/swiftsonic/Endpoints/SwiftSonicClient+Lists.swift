@@ -2,7 +2,8 @@
 //
 // List endpoints: curated and filtered collections of albums and songs.
 //
-// Covered: getAlbumList2, getRandomSongs, getSongsByGenre, getStarred2
+// Covered: getAlbumList2, getRandomSongs, getSongsByGenre, getStarred2,
+//          getAlbumList (folder-based legacy), getStarred (folder-based legacy)
 
 import Foundation
 
@@ -162,6 +163,67 @@ extension SwiftSonicClient {
         return try unwrapListPayload(envelope.payload?.starred2, endpoint: "getStarred2")
     }
 
+    // MARK: getAlbumList (folder-based)
+
+    /// Returns a list of albums sorted or filtered by the given type (folder-based).
+    ///
+    /// Album entries are represented as ``Song`` values with ``Song/isDir`` set to `true`.
+    ///
+    /// > Important: Prefer ``getAlbumList2(type:size:offset:fromYear:toYear:genre:musicFolderId:)``
+    /// > unless you specifically need folder-structure browsing. The "2" variant uses
+    /// > ID3-tagged metadata and returns typed ``AlbumID3`` values.
+    ///
+    /// - Parameters:
+    ///   - type: The list ordering strategy.
+    ///   - size: Maximum number of albums to return (1–500). Defaults to 10.
+    ///   - offset: Offset into the result set for pagination. Defaults to 0.
+    ///   - fromYear: Start year (required when `type` is `.byYear`).
+    ///   - toYear: End year (required when `type` is `.byYear`).
+    ///   - genre: Genre filter (required when `type` is `.byGenre`).
+    ///   - musicFolderId: Limit results to this music folder.
+    public func getAlbumList(
+        type: AlbumListType,
+        size: Int? = nil,
+        offset: Int? = nil,
+        fromYear: Int? = nil,
+        toYear: Int? = nil,
+        genre: String? = nil,
+        musicFolderId: String? = nil
+    ) async throws -> [Song] {
+        var params: [String: String] = ["type": type.rawValue]
+        if let size { params["size"] = String(size) }
+        if let offset { params["offset"] = String(offset) }
+        if let fromYear { params["fromYear"] = String(fromYear) }
+        if let toYear { params["toYear"] = String(toYear) }
+        if let genre { params["genre"] = genre }
+        if let id = musicFolderId { params["musicFolderId"] = id }
+
+        let envelope: SubsonicEnvelope<AlbumListPayload> =
+            try await performDecode(endpoint: "getAlbumList", params: params)
+        return envelope.payload?.albumList.album ?? []
+    }
+
+    // MARK: getStarred (folder-based)
+
+    /// Returns all items (artists, albums, songs) starred by the current user (folder-based).
+    ///
+    /// Artist and album entries are represented as ``Song`` values with ``Song/isDir``
+    /// set to `true`, consistent with the folder-based browsing model.
+    ///
+    /// > Important: Prefer ``getStarred2(musicFolderId:)`` unless you specifically need
+    /// > folder-structure browsing. The "2" variant returns typed ``ArtistID3`` and
+    /// > ``AlbumID3`` values.
+    ///
+    /// - Parameter musicFolderId: Limit results to this music folder.
+    public func getStarred(musicFolderId: String? = nil) async throws -> Starred {
+        var params: [String: String] = [:]
+        if let id = musicFolderId { params["musicFolderId"] = id }
+
+        let envelope: SubsonicEnvelope<StarredPayload> =
+            try await performDecode(endpoint: "getStarred", params: params)
+        return try unwrapListPayload(envelope.payload?.starred, endpoint: "getStarred")
+    }
+
     // MARK: - Private helpers
 
     private func unwrapListPayload<T>(_ value: T?, endpoint: String) throws -> T {
@@ -224,5 +286,27 @@ struct Starred2Payload: SubsonicPayload {
     init(from decoder: any Decoder) throws {
         let container = try decoder.singleValueContainer()
         starred2 = try container.decode(Starred2.self)
+    }
+}
+
+struct AlbumListContainer: Decodable, Sendable {
+    let album: [Song]?
+}
+
+struct AlbumListPayload: SubsonicPayload {
+    static let payloadKey = "albumList"
+    let albumList: AlbumListContainer
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        albumList = try container.decode(AlbumListContainer.self)
+    }
+}
+
+struct StarredPayload: SubsonicPayload {
+    static let payloadKey = "starred"
+    let starred: Starred
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        starred = try container.decode(Starred.self)
     }
 }

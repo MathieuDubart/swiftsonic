@@ -1,6 +1,7 @@
 // ListsTests.swift — SwiftSonicTests
 //
-// Tests for list endpoints: getAlbumList2, getRandomSongs, getSongsByGenre, getStarred2.
+// Tests for list endpoints: getAlbumList2, getRandomSongs, getSongsByGenre, getStarred2,
+// getAlbumList (folder-based legacy), getStarred (folder-based legacy).
 
 import Testing
 import Foundation
@@ -191,5 +192,86 @@ struct GetStarred2Tests {
         _ = try await client.getStarred2(musicFolderId: "1")
 
         #expect(mock.queryItem(named: "musicFolderId") == "1")
+    }
+}
+
+// MARK: - getAlbumList (folder-based)
+
+@Suite("getAlbumList")
+struct GetAlbumListTests {
+
+    @Test("getAlbumList decodes folder-based album entries as Song")
+    func decodesAlbums() async throws {
+        let mock = MockHTTPTransport()
+        mock.enqueue(fixture: "getAlbumList")
+
+        let client = SwiftSonicClient(configuration: .test, transport: mock)
+        let albums = try await client.getAlbumList(type: .newest)
+
+        #expect(albums.count == 2)
+        #expect(albums[0].id == "dir-al-1")
+        #expect(albums[0].title == "The Slip")
+        #expect(albums[0].isDir == true)
+        #expect(albums[1].title == "Ring Ring")
+    }
+
+    @Test("getAlbumList sends type param")
+    func sendsTypeParam() async throws {
+        let mock = MockHTTPTransport()
+        mock.enqueue(fixture: "getAlbumList")
+
+        let client = SwiftSonicClient(configuration: .test, transport: mock)
+        _ = try await client.getAlbumList(type: .random, size: 15)
+
+        #expect(mock.queryItem(named: "type") == "random")
+        #expect(mock.queryItem(named: "size") == "15")
+    }
+
+    @Test("getAlbumList returns empty array on empty response")
+    func returnsEmptyOnEmpty() async throws {
+        let emptyFixture = """
+        {"subsonic-response":{"status":"ok","version":"1.16.1","albumList":{}}}
+        """.data(using: .utf8)!
+
+        let mock = MockHTTPTransport()
+        mock.enqueue(emptyFixture)
+
+        let client = SwiftSonicClient(configuration: .test, transport: mock)
+        let albums = try await client.getAlbumList(type: .random)
+        #expect(albums.isEmpty)
+    }
+}
+
+// MARK: - getStarred (folder-based)
+
+@Suite("getStarred")
+struct GetStarredTests {
+
+    @Test("getStarred decodes folder-based starred artists, albums, and songs")
+    func decodesStarred() async throws {
+        let mock = MockHTTPTransport()
+        mock.enqueue(fixture: "getStarred")
+
+        let client = SwiftSonicClient(configuration: .test, transport: mock)
+        let starred = try await client.getStarred()
+
+        #expect(starred.artist?.count == 1)
+        #expect(starred.artist?[0].title == "Nine Inch Nails")
+        #expect(starred.artist?[0].isDir == true)
+        #expect(starred.album?.count == 1)
+        #expect(starred.album?[0].title == "The Slip")
+        #expect(starred.song?.count == 1)
+        #expect(starred.song?[0].title == "999,999")
+    }
+
+    @Test("getStarred sends musicFolderId when provided")
+    func sendsMusicFolderId() async throws {
+        let mock = MockHTTPTransport()
+        mock.enqueue(fixture: "getStarred")
+
+        let client = SwiftSonicClient(configuration: .test, transport: mock)
+        _ = try await client.getStarred(musicFolderId: "2")
+
+        #expect(mock.queryItem(named: "musicFolderId") == "2")
     }
 }

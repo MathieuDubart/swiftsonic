@@ -1,8 +1,30 @@
 // SearchResult.swift — SwiftSonic
 //
-// Model for search3 endpoint results.
+// Models for search2 and search3 endpoint results.
+//
+// SearchResult2 — folder-based organisation (search2).
+// SearchResult3 — ID3-tagged organisation (search3, preferred).
 
 import Foundation
+
+// MARK: - SearchResult2 (folder-based)
+
+/// Results returned by the `search2` endpoint.
+///
+/// Artist and album entries are represented as ``Song`` values with ``Song/isDir``
+/// set to `true`, consistent with the folder-based browsing model.
+///
+/// > Important: Prefer ``SearchResult3`` (returned by
+/// > ``SwiftSonicClient/search3(_:artistCount:artistOffset:albumCount:albumOffset:songCount:songOffset:musicFolderId:)``)
+/// > unless you specifically need folder-structure browsing.
+public struct SearchResult2: Decodable, Sendable {
+    /// Matching artists (folder-based ``Song`` nodes with `isDir = true`).
+    public let artist: [Song]?
+    /// Matching albums (folder-based ``Song`` nodes with `isDir = true`).
+    public let album: [Song]?
+    /// Matching songs.
+    public let song: [Song]?
+}
 
 // MARK: - SearchResult3
 
