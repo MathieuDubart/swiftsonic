@@ -78,6 +78,24 @@ public extension SwiftSonicClient {
         return requestBuilder.mediaURL(endpoint: "getCoverArt", params: params)
     }
 
+    /// Returns an authenticated URL for a user's avatar image.
+    ///
+    /// Pass the returned URL directly to `AsyncImage` or your image loading library.
+    /// No network request is made by this method — the server authenticates when
+    /// the URL is actually fetched.
+    ///
+    /// ```swift
+    /// if let url = client.avatarURL(username: "alice") {
+    ///     AsyncImage(url: url)
+    /// }
+    /// ```
+    ///
+    /// - Parameter username: The username whose avatar to retrieve.
+    /// - Returns: An authenticated `URL`, or `nil` if the URL cannot be constructed.
+    nonisolated func avatarURL(username: String) -> URL? {
+        requestBuilder.mediaURL(endpoint: "getAvatar", params: ["username": username])
+    }
+
     /// Returns an authenticated HLS playlist URL for adaptive streaming.
     ///
     /// - Parameters:

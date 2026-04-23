@@ -1,6 +1,6 @@
 // MediaTests.swift — SwiftSonicTests
 //
-// Tests for media URL helper methods: streamURL, downloadURL, coverArtURL, hlsURL.
+// Tests for media URL helper methods: streamURL, downloadURL, coverArtURL, hlsURL, avatarURL.
 // These are nonisolated and synchronous — no network call is made.
 
 import Testing
@@ -127,5 +127,34 @@ struct HLSURLTests {
         let query = components?.queryItems
         #expect(query?.first(where: { $0.name == "audioBitRate" })?.value == "128")
         #expect(query?.first(where: { $0.name == "audioTrack" })?.value == "2")
+    }
+}
+
+// MARK: - avatarURL
+
+@Suite("avatarURL")
+struct AvatarURLTests {
+
+    @Test("avatarURL returns URL with username param")
+    func returnsURLWithUsername() async {
+        let client = SwiftSonicClient(configuration: .test)
+        let url = client.avatarURL(username: "alice")
+
+        #expect(url != nil)
+        #expect(url?.path.hasSuffix("/rest/getAvatar.view") == true)
+        let components = URLComponents(url: url!, resolvingAgainstBaseURL: false)
+        #expect(components?.queryItems?.first(where: { $0.name == "username" })?.value == "alice")
+    }
+
+    @Test("avatarURL includes auth params")
+    func includesAuthParams() async {
+        let client = SwiftSonicClient(configuration: .test)
+        let url = client.avatarURL(username: "alice")
+
+        let components = URLComponents(url: url!, resolvingAgainstBaseURL: false)
+        let query = components?.queryItems
+        #expect(query?.first(where: { $0.name == "u" })?.value == "testuser")
+        #expect(query?.first(where: { $0.name == "t" }) != nil)
+        #expect(query?.first(where: { $0.name == "s" }) != nil)
     }
 }
