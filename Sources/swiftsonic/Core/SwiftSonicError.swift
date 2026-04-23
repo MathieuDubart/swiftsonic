@@ -40,14 +40,19 @@ public enum SwiftSonicError: Error, Sendable {
     case decoding(DecodingError, rawData: Data)
 
     /// The server returned a non-2xx HTTP status code (excluding 429).
-    case httpError(statusCode: Int, requestURL: URL)
+    ///
+    /// `endpoint` identifies the Subsonic endpoint that failed (e.g. `"getArtists"`).
+    /// `serverHost` is the hostname from ``ServerConfiguration/serverURL``
+    /// (e.g. `"music.example.com"`). Neither field contains authentication credentials.
+    case httpError(statusCode: Int, endpoint: String, serverHost: String?)
 
     /// The server returned HTTP 429 (Too Many Requests).
     ///
     /// `retryAfter` is the server's suggested delay in seconds, parsed from the
     /// `Retry-After` header. When present, ``SwiftSonicClient`` uses this value
     /// instead of the configured ``RetryPolicy/baseDelay``.
-    case rateLimited(retryAfter: TimeInterval?, requestURL: URL)
+    /// `endpoint` and `serverHost` identify the request without exposing credentials.
+    case rateLimited(retryAfter: TimeInterval?, endpoint: String, serverHost: String?)
 
     /// A client-side configuration problem prevented building the request.
     case invalidConfiguration(String)
@@ -73,7 +78,7 @@ public extension SwiftSonicError {
             }
         case .rateLimited:
             return true
-        case .httpError(let statusCode, _):
+        case .httpError(let statusCode, _, _):
             return (500...599).contains(statusCode)
         case .api, .decoding, .invalidConfiguration:
             return false
@@ -92,7 +97,7 @@ public extension SwiftSonicError {
             default:
                 return false
             }
-        case .httpError(let statusCode, _):
+        case .httpError(let statusCode, _, _):
             return statusCode == 401 || statusCode == 403
         default:
             return false
@@ -103,7 +108,7 @@ public extension SwiftSonicError {
     ///
     /// Non-nil only for `.rateLimited` responses that include a `Retry-After` header.
     var suggestedRetryDelay: TimeInterval? {
-        if case .rateLimited(let retryAfter, _) = self { return retryAfter }
+        if case .rateLimited(let retryAfter, _, _) = self { return retryAfter }
         return nil
     }
 }
@@ -117,13 +122,24 @@ public struct SubsonicAPIError: Error, Sendable {
     public let code: SubsonicErrorCode
 
     /// The human-readable message provided by the server.
+    ///
+    /// > Note: This value is returned verbatim by the server. While SwiftSonic servers
+    /// > should not include credential information in error messages, the content of
+    /// > this field is outside the library's control.
     public let message: String
 
     /// An optional URL to documentation for this error (OpenSubsonic servers only).
     public let helpURL: URL?
 
-    /// The full URL of the request that triggered this error.
-    public let requestURL: URL
+    /// The Subsonic endpoint that produced this error (e.g. `"getArtists"`).
+    ///
+    /// Does not contain authentication credentials.
+    public let endpoint: String
+
+    /// The hostname of the server (e.g. `"music.example.com"`), or `nil` if unavailable.
+    ///
+    /// Does not contain authentication credentials.
+    public let serverHost: String?
 }
 
 // MARK: - Subsonic error codes

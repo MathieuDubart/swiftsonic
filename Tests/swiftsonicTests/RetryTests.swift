@@ -149,7 +149,7 @@ struct RetryTests {
         do {
             try await client.ping()
             Issue.record("Expected SwiftSonicError.rateLimited to be thrown")
-        } catch SwiftSonicError.rateLimited(let retryAfter, _) {
+        } catch SwiftSonicError.rateLimited(let retryAfter, _, _) {
             #expect(retryAfter == 5.0)
         } catch {
             Issue.record("Unexpected error type: \(error)")
