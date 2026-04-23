@@ -32,7 +32,7 @@ extension SwiftSonicClient {
 
 // MARK: - Response payloads (internal)
 
-private struct NowPlayingContainer: Decodable, Sendable {
+struct NowPlayingContainer: Decodable, Sendable {
     let entry: [NowPlayingEntry]?
 }
 
