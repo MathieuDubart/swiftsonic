@@ -1,0 +1,26 @@
+{
+  "subsonic-response": {
+    "status": "ok",
+    "version": "1.16.1",
+    "type": "navidrome",
+    "serverVersion": "0.53.3",
+    "user": {
+      "username": "alice",
+      "email": "alice@example.com",
+      "scrobblingEnabled": true,
+      "adminRole": true,
+      "settingsRole": true,
+      "downloadRole": true,
+      "uploadRole": false,
+      "playlistRole": true,
+      "coverArtRole": true,
+      "commentRole": true,
+      "podcastRole": true,
+      "streamRole": true,
+      "jukeboxRole": false,
+      "shareRole": false,
+      "videoConversionRole": false,
+      "folder": [1]
+    }
+  }
+}
