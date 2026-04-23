@@ -268,6 +268,28 @@ public actor SwiftSonicClient {
         try await performDecode(endpoint: endpoint, params: params, multiParams: [:])
     }
 
+    // MARK: - Shared payload unwrap helper
+
+    /// Throws a descriptive `DecodingError` if `value` is `nil`.
+    ///
+    /// Used by endpoint extensions to surface a clear error when the server
+    /// returns a valid envelope but omits the expected payload key.
+    func unwrapRequired<T>(_ value: T?, endpoint: String) throws -> T {
+        guard let value else {
+            throw SwiftSonicError.decoding(
+                DecodingError.valueNotFound(
+                    T.self,
+                    DecodingError.Context(
+                        codingPath: [],
+                        debugDescription: "Missing payload in \(endpoint) response"
+                    )
+                ),
+                rawData: Data()
+            )
+        }
+        return value
+    }
+
     // MARK: - Single-attempt execution
 
     /// Executes a single network attempt without any retry logic.

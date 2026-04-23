@@ -1,0 +1,12 @@
+{
+  "subsonic-response": {
+    "status": "ok",
+    "version": "1.16.1",
+    "openSubsonic": true,
+    "scanStatus": {
+      "scanning": true,
+      "count": 123,
+      "folderCount": 10
+    }
+  }
+}

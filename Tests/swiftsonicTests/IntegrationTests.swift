@@ -92,6 +92,15 @@ struct IntegrationTests {
         #expect(!songs.isEmpty)
     }
 
+    // MARK: - Scan
+
+    @Test("getScanStatus returns a status without error")
+    func getScanStatus() async throws {
+        let status = try await client.getScanStatus()
+        // The demo server is never actively scanning — just verify the call succeeds.
+        #expect(status.scanning == false)
+    }
+
     // MARK: - Search
 
     @Test("search3 returns at least one result for a broad query")
