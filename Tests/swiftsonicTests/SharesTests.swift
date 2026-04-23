@@ -30,9 +30,9 @@ struct GetSharesTests {
 
         let first = try #require(shares.first)
         #expect(first.id == "sh-abc123")
-        #expect(first.url == "https://demo.navidrome.org/share/sh-abc123")
+        #expect(first.url == "https://music.example.com/share/sh-abc123")
         #expect(first.description == "NIN collection")
-        #expect(first.username == "demo")
+        #expect(first.username == "alice")
         #expect(first.visitCount == 3)
         #expect(first.expires != nil)
 
