@@ -27,17 +27,23 @@ func subsonicToken(password: String, salt: String) -> String {
 
 /// Generates a cryptographically random alphanumeric salt string.
 ///
-/// - Parameter length: Number of characters. Defaults to 10.
+/// Uses `SystemRandomNumberGenerator` explicitly — this generator is backed by
+/// the OS CSPRNG (`SecRandomCopyBytes` on Apple platforms) and is suitable for
+/// security-sensitive use cases.
+///
+/// - Parameter length: Number of characters. Defaults to 16 (~95 bits of entropy
+///   from a 62-character alphabet), which exceeds the 128-bit security recommendation
+///   when paired with MD5 token auth.
 /// - Returns: A random string suitable for use as a Subsonic auth salt.
-func randomSalt(length: Int = 10) -> String {
+func randomSalt(length: Int = 16) -> String {
     let alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    var rng = SystemRandomNumberGenerator()
     var result = ""
     result.reserveCapacity(length)
     for _ in 0 ..< length {
-        // SystemRandomNumberGenerator is cryptographically secure on Apple platforms
         let index = alphabet.index(
             alphabet.startIndex,
-            offsetBy: Int.random(in: 0 ..< alphabet.count)
+            offsetBy: Int.random(in: 0 ..< alphabet.count, using: &rng)
         )
         result.append(alphabet[index])
     }
