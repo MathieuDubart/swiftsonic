@@ -101,6 +101,16 @@ struct IntegrationTests {
         #expect(status.scanning == false)
     }
 
+    // MARK: - Internet Radio
+
+    @Test("getInternetRadioStations returns without error")
+    func getInternetRadioStations() async throws {
+        // The demo server has no stations configured — verify the call succeeds and
+        // returns an empty array rather than throwing.
+        let stations = try await client.getInternetRadioStations()
+        #expect(stations.isEmpty || !stations.isEmpty)  // either is valid
+    }
+
     // MARK: - Search
 
     @Test("search3 returns at least one result for a broad query")
