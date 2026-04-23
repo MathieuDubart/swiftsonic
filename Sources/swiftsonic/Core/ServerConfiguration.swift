@@ -71,6 +71,20 @@ public struct ServerConfiguration: Sendable {
     /// Defaults to `"1.16.1"`, the current OpenSubsonic-compatible version.
     public let apiVersion: String
 
+    /// Maximum time to wait for the server to return a response, in seconds.
+    ///
+    /// Applied as `URLRequest.timeoutInterval` on every request.
+    /// Custom ``HTTPTransport`` implementations should honour this value.
+    /// Defaults to `30` seconds.
+    public let requestTimeout: TimeInterval
+
+    /// Maximum time for an entire resource download to complete, in seconds.
+    ///
+    /// Applied via `URLSessionConfiguration.timeoutIntervalForResource` when using
+    /// the default ``URLSessionTransport``. Custom transports handle this independently.
+    /// Defaults to `60` seconds.
+    public let resourceTimeout: TimeInterval
+
     // MARK: Full initializer
 
     /// Creates a configuration with explicit control over all parameters.
@@ -80,16 +94,22 @@ public struct ServerConfiguration: Sendable {
     ///   - auth: The authentication method.
     ///   - clientName: Identifier sent as `c` in every request. Defaults to `"SwiftSonic"`.
     ///   - apiVersion: Subsonic API version string. Defaults to `"1.16.1"`.
+    ///   - requestTimeout: Per-request timeout in seconds. Defaults to `30`.
+    ///   - resourceTimeout: Overall resource timeout in seconds. Defaults to `60`.
     public init(
         serverURL: URL,
         auth: AuthMethod,
         clientName: String = "SwiftSonic",
-        apiVersion: String = "1.16.1"
+        apiVersion: String = "1.16.1",
+        requestTimeout: TimeInterval = 30,
+        resourceTimeout: TimeInterval = 60
     ) {
-        self.serverURL = serverURL
-        self.auth = auth
-        self.clientName = clientName
-        self.apiVersion = apiVersion
+        self.serverURL       = serverURL
+        self.auth            = auth
+        self.clientName      = clientName
+        self.apiVersion      = apiVersion
+        self.requestTimeout  = requestTimeout
+        self.resourceTimeout = resourceTimeout
     }
 
     // MARK: Convenience initializer (token auth)
@@ -105,19 +125,25 @@ public struct ServerConfiguration: Sendable {
     ///   - reusesSalt: When `false` (default), a fresh salt is generated per request.
     ///   - clientName: Identifier sent as `c` in every request. Defaults to `"SwiftSonic"`.
     ///   - apiVersion: Subsonic API version string. Defaults to `"1.16.1"`.
+    ///   - requestTimeout: Per-request timeout in seconds. Defaults to `30`.
+    ///   - resourceTimeout: Overall resource timeout in seconds. Defaults to `60`.
     public init(
         serverURL: URL,
         username: String,
         password: String,
         reusesSalt: Bool = false,
         clientName: String = "SwiftSonic",
-        apiVersion: String = "1.16.1"
+        apiVersion: String = "1.16.1",
+        requestTimeout: TimeInterval = 30,
+        resourceTimeout: TimeInterval = 60
     ) {
         self.init(
             serverURL: serverURL,
             auth: .tokenAuth(username: username, password: password, reusesSalt: reusesSalt),
             clientName: clientName,
-            apiVersion: apiVersion
+            apiVersion: apiVersion,
+            requestTimeout: requestTimeout,
+            resourceTimeout: resourceTimeout
         )
     }
 }

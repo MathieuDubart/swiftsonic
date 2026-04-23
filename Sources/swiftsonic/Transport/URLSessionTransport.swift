@@ -15,6 +15,11 @@ import Foundation
 /// let transport = URLSessionTransport(session: session)
 /// let client = SwiftSonicClient(configuration: config, transport: transport)
 /// ```
+///
+/// > Note: ``SwiftSonicClient`` automatically creates a `URLSessionTransport`
+/// > configured with the ``ServerConfiguration/requestTimeout`` and
+/// > ``ServerConfiguration/resourceTimeout`` values when no custom transport is injected.
+/// > You do not need to configure timeouts manually in the common case.
 public struct URLSessionTransport: HTTPTransport, Sendable {
     private let session: URLSession
 
@@ -23,6 +28,16 @@ public struct URLSessionTransport: HTTPTransport, Sendable {
     /// - Parameter session: The `URLSession` to use. Defaults to `.shared`.
     public init(session: URLSession = .shared) {
         self.session = session
+    }
+
+    /// Creates a transport with a custom `URLSessionConfiguration`.
+    ///
+    /// Use this initializer when you need fine-grained control over session settings
+    /// such as `timeoutIntervalForResource`, TLS configuration, or HTTP headers.
+    ///
+    /// - Parameter configuration: The session configuration to use.
+    public init(configuration: URLSessionConfiguration) {
+        self.session = URLSession(configuration: configuration)
     }
 
     public func data(for request: URLRequest) async throws -> (Data, HTTPURLResponse) {

@@ -30,6 +30,19 @@ import OSLog
 /// let artists = try await client.getArtists()
 /// ```
 ///
+/// ## Retry behaviour
+/// By default the client retries up to 3 times on transient failures (network
+/// errors, HTTP 5xx, HTTP 429) with exponential backoff. Override the default
+/// by passing a custom ``RetryPolicy``:
+/// ```swift
+/// let client = SwiftSonicClient(
+///     configuration: config,
+///     retryPolicy: RetryPolicy(maxAttempts: 5, baseDelay: 1.0)
+/// )
+/// // Or disable retries entirely:
+/// let client = SwiftSonicClient(configuration: config, retryPolicy: .none)
+/// ```
+///
 /// ## Injecting a custom transport
 /// Pass a custom ``HTTPTransport`` to add logging, proxying, or certificate pinning:
 /// ```swift
@@ -54,25 +67,52 @@ public actor SwiftSonicClient {
 
     let transport: any HTTPTransport
     let requestBuilder: RequestBuilder
+    private let retryPolicy: RetryPolicy
+    private let metricsCollector: (any SwiftSonicMetricsCollector)?
     private let logger: Logger
 
     // MARK: - Initializers
 
-    /// Creates a client with full control over configuration and transport.
+    /// Creates a client with full control over configuration, transport, and behaviour.
+    ///
+    /// All parameters after `configuration` are optional and have sensible defaults —
+    /// the five-line quick-start example in the README continues to work unchanged.
     ///
     /// - Parameters:
     ///   - configuration: Connection and authentication parameters.
-    ///   - transport: The HTTP transport to use. Defaults to ``URLSessionTransport``.
+    ///   - transport: The HTTP transport to use. When `nil` (default), a
+    ///     ``URLSessionTransport`` is created and configured with the timeout values
+    ///     from `configuration`.
+    ///   - retryPolicy: Controls retry behaviour on transient failures. Defaults to
+    ///     ``RetryPolicy/default`` (3 attempts, exponential backoff).
+    ///   - metricsCollector: Optional hook for observability. Receives a
+    ///     ``SwiftSonicRequestEvent`` for every attempt, retry, success, and failure.
+    ///     Defaults to `nil` (no-op).
     ///   - logSubsystem: If non-nil, enables `os.Logger` output under this subsystem.
     ///     Defaults to `nil` (silent).
     public init(
         configuration: ServerConfiguration,
         transport: (any HTTPTransport)? = nil,
+        retryPolicy: RetryPolicy = .default,
+        metricsCollector: (any SwiftSonicMetricsCollector)? = nil,
         logSubsystem: String? = nil
     ) {
-        self.configuration = configuration
-        self.transport = transport ?? URLSessionTransport()
-        self.requestBuilder = RequestBuilder(configuration: configuration)
+        self.configuration    = configuration
+        self.retryPolicy      = retryPolicy
+        self.metricsCollector = metricsCollector
+        self.requestBuilder   = RequestBuilder(configuration: configuration)
+
+        // When no custom transport is provided, create a URLSession configured with
+        // the timeout values declared in ServerConfiguration.
+        if let transport {
+            self.transport = transport
+        } else {
+            let sessionConfig = URLSessionConfiguration.default
+            sessionConfig.timeoutIntervalForRequest  = configuration.requestTimeout
+            sessionConfig.timeoutIntervalForResource = configuration.resourceTimeout
+            self.transport = URLSessionTransport(configuration: sessionConfig)
+        }
+
         if let subsystem = logSubsystem {
             self.logger = Logger(subsystem: subsystem, category: "SwiftSonicClient")
         } else {
@@ -156,23 +196,104 @@ public actor SwiftSonicClient {
 
     // MARK: - Internal helpers
 
-    /// Decodes a typed payload from the Subsonic envelope.
+    /// Decodes a typed payload from the Subsonic envelope, with automatic retry.
     ///
     /// Validates HTTP status, checks the Subsonic `status` field, and throws
-    /// ``SwiftSonicError`` on any failure.
+    /// ``SwiftSonicError`` on any failure. Transient errors are retried according
+    /// to the configured ``RetryPolicy``.
     func performDecode<P: SubsonicPayload>(
         endpoint: String,
         params: [String: String],
         multiParams: [String: [String]] = [:]
     ) async throws -> SubsonicEnvelope<P> {
-        let request = try requestBuilder.request(endpoint: endpoint, params: params, multiParams: multiParams)
-        logger.debug("→ \(endpoint) \(params)")
+        var attempt = 0
+
+        while true {
+            let startTime = Date()
+            metricsCollector?.record(.started(endpoint: endpoint, attempt: attempt))
+            logger.debug("→ \(endpoint) attempt \(attempt + 1)/\(self.retryPolicy.maxAttempts)")
+
+            do {
+                let envelope: SubsonicEnvelope<P> = try await executeOnce(
+                    endpoint: endpoint, params: params, multiParams: multiParams
+                )
+                let duration = Date().timeIntervalSince(startTime)
+                metricsCollector?.record(.succeeded(endpoint: endpoint, attempt: attempt, duration: duration))
+                return envelope
+
+            } catch {
+                let duration = Date().timeIntervalSince(startTime)
+                let swiftSonicError = error as? SwiftSonicError
+
+                if let sse = swiftSonicError {
+                    metricsCollector?.record(.failed(endpoint: endpoint, attempt: attempt, error: sse, duration: duration))
+                }
+
+                let isRetryable = swiftSonicError?.isTransient ?? false
+                let hasAttemptsLeft = attempt + 1 < retryPolicy.maxAttempts
+
+                guard isRetryable && hasAttemptsLeft else { throw error }
+
+                let delay = swiftSonicError?.suggestedRetryDelay
+                    ?? retryPolicy.delay(for: attempt)
+                metricsCollector?.record(.retryScheduled(endpoint: endpoint, attempt: attempt, delay: delay))
+                logger.debug("↻ \(endpoint) retry \(attempt + 2)/\(self.retryPolicy.maxAttempts) in \(delay, format: .fixed(precision: 2))s")
+
+                // Task.sleep propagates CancellationError — cancellation stops retry immediately.
+                try await Task.sleep(for: .seconds(delay))
+                attempt += 1
+            }
+        }
+    }
+
+    /// Performs a request for endpoints with no payload (ping, star, etc.).
+    @discardableResult
+    func performVoid(
+        endpoint: String,
+        params: [String: String] = [:],
+        multiParams: [String: [String]] = [:]
+    ) async throws -> SubsonicEnvelope<EmptyPayload> {
+        try await performDecode(endpoint: endpoint, params: params, multiParams: multiParams)
+    }
+
+    /// Returns the raw envelope (used by fetchCapabilities to read top-level fields).
+    private func performRaw(
+        endpoint: String,
+        params: [String: String]
+    ) async throws -> SubsonicEnvelope<EmptyPayload> {
+        try await performDecode(endpoint: endpoint, params: params, multiParams: [:])
+    }
+
+    // MARK: - Single-attempt execution
+
+    /// Executes a single network attempt without any retry logic.
+    private func executeOnce<P: SubsonicPayload>(
+        endpoint: String,
+        params: [String: String],
+        multiParams: [String: [String]]
+    ) async throws -> SubsonicEnvelope<P> {
+        var request = try requestBuilder.request(
+            endpoint: endpoint, params: params, multiParams: multiParams
+        )
+        // Defence-in-depth: apply request timeout directly on the URLRequest so that
+        // custom HTTPTransport implementations also honour the configured value.
+        request.timeoutInterval = configuration.requestTimeout
 
         let (data, httpResponse): (Data, HTTPURLResponse)
         do {
             (data, httpResponse) = try await transport.data(for: request)
         } catch let urlError as URLError {
             throw SwiftSonicError.network(urlError)
+        }
+
+        // Handle rate limiting before the generic status check.
+        if httpResponse.statusCode == 429 {
+            let retryAfter = httpResponse.value(forHTTPHeaderField: "Retry-After")
+                .flatMap { TimeInterval($0) }
+            throw SwiftSonicError.rateLimited(
+                retryAfter: retryAfter,
+                requestURL: request.url ?? configuration.serverURL
+            )
         }
 
         guard (200 ..< 300).contains(httpResponse.statusCode) else {
@@ -201,23 +322,5 @@ public actor SwiftSonicClient {
         }
 
         return envelope
-    }
-
-    /// Performs a request for endpoints with no payload (ping, star, etc.).
-    @discardableResult
-    func performVoid(
-        endpoint: String,
-        params: [String: String] = [:],
-        multiParams: [String: [String]] = [:]
-    ) async throws -> SubsonicEnvelope<EmptyPayload> {
-        try await performDecode(endpoint: endpoint, params: params, multiParams: multiParams)
-    }
-
-    /// Returns the raw envelope (used by fetchCapabilities to read top-level fields).
-    private func performRaw(
-        endpoint: String,
-        params: [String: String]
-    ) async throws -> SubsonicEnvelope<EmptyPayload> {
-        try await performDecode(endpoint: endpoint, params: params, multiParams: [:])
     }
 }

@@ -39,11 +39,73 @@ public enum SwiftSonicError: Error, Sendable {
     /// The raw `Data` is included to aid debugging.
     case decoding(DecodingError, rawData: Data)
 
-    /// The server returned a non-2xx HTTP status code.
+    /// The server returned a non-2xx HTTP status code (excluding 429).
     case httpError(statusCode: Int, requestURL: URL)
+
+    /// The server returned HTTP 429 (Too Many Requests).
+    ///
+    /// `retryAfter` is the server's suggested delay in seconds, parsed from the
+    /// `Retry-After` header. When present, ``SwiftSonicClient`` uses this value
+    /// instead of the configured ``RetryPolicy/baseDelay``.
+    case rateLimited(retryAfter: TimeInterval?, requestURL: URL)
 
     /// A client-side configuration problem prevented building the request.
     case invalidConfiguration(String)
+}
+
+// MARK: - Convenience helpers
+
+public extension SwiftSonicError {
+    /// Whether this error is likely transient and safe to retry.
+    ///
+    /// `true` for network timeouts/resets, HTTP 5xx, and `.rateLimited`.
+    /// `false` for auth failures, decoding errors, and other client errors.
+    var isTransient: Bool {
+        switch self {
+        case .network(let urlError):
+            switch urlError.code {
+            case .notConnectedToInternet, .networkConnectionLost, .timedOut,
+                 .cannotConnectToHost, .dnsLookupFailed, .cannotFindHost,
+                 .dataNotAllowed, .internationalRoamingOff:
+                return true
+            default:
+                return false
+            }
+        case .rateLimited:
+            return true
+        case .httpError(let statusCode, _):
+            return (500...599).contains(statusCode)
+        case .api, .decoding, .invalidConfiguration:
+            return false
+        }
+    }
+
+    /// Whether this error indicates an authentication or authorisation failure.
+    var isAuthenticationFailure: Bool {
+        switch self {
+        case .api(let error):
+            switch error.code {
+            case .wrongCredentials, .tokenAuthNotSupportedForLDAP,
+                 .authMechanismNotSupported, .conflictingAuthMechanisms,
+                 .invalidAPIKey, .unauthorized:
+                return true
+            default:
+                return false
+            }
+        case .httpError(let statusCode, _):
+            return statusCode == 401 || statusCode == 403
+        default:
+            return false
+        }
+    }
+
+    /// The server-suggested delay before retrying, in seconds.
+    ///
+    /// Non-nil only for `.rateLimited` responses that include a `Retry-After` header.
+    var suggestedRetryDelay: TimeInterval? {
+        if case .rateLimited(let retryAfter, _) = self { return retryAfter }
+        return nil
+    }
 }
 
 // MARK: - API error detail
