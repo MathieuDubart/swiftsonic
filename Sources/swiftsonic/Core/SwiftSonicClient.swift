@@ -183,7 +183,9 @@ public actor SwiftSonicClient {
 
         let envelope: SubsonicEnvelope<P>
         do {
-            envelope = try JSONDecoder().decode(SubsonicEnvelope<P>.self, from: data)
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+            envelope = try decoder.decode(SubsonicEnvelope<P>.self, from: data)
         } catch let decodingError as DecodingError {
             throw SwiftSonicError.decoding(decodingError, rawData: data)
         }

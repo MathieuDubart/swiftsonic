@@ -78,6 +78,13 @@ extension SwiftSonicClient {
 struct LicensePayload: SubsonicPayload {
     static let payloadKey = "license"
     let license: License
+
+    // The envelope already positions the decoder AT the "license" value,
+    // so we decode License directly via singleValueContainer.
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        license = try container.decode(License.self)
+    }
 }
 
 /// A single OpenSubsonic extension entry.
@@ -92,4 +99,11 @@ public struct OpenSubsonicExtension: Codable, Sendable {
 struct OpenSubsonicExtensionsPayload: SubsonicPayload {
     static let payloadKey = "openSubsonicExtensions"
     let openSubsonicExtensions: [OpenSubsonicExtension]
+
+    // The value at "openSubsonicExtensions" is a JSON array,
+    // so decode it directly via singleValueContainer.
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        openSubsonicExtensions = try container.decode([OpenSubsonicExtension].self)
+    }
 }

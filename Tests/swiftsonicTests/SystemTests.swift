@@ -41,18 +41,14 @@ struct PingTests {
 
         let client = SwiftSonicClient(configuration: .test, transport: mock)
 
-        await #expect(throws: SwiftSonicError.self) {
-            try await client.ping()
-        }
-
-        // Verify the specific error code
         do {
             try await client.ping()
+            Issue.record("Expected SwiftSonicError.api to be thrown")
         } catch SwiftSonicError.api(let apiError) {
             #expect(apiError.code == .wrongCredentials)
             #expect(apiError.message == "Wrong username or password.")
         } catch {
-            // Re-enqueue for the second attempt above
+            Issue.record("Unexpected error type: \(error)")
         }
     }
 
