@@ -58,6 +58,32 @@ public enum SwiftSonicError: Error, Sendable {
     case invalidConfiguration(String)
 }
 
+// MARK: - LocalizedError conformance
+
+/// Provides human-readable, credential-safe error descriptions.
+///
+/// Credential values (usernames, passwords, API keys) are **never** included
+/// in any description string. Only structural information safe to surface in
+/// UI, logs, or crash reports is included.
+extension SwiftSonicError: LocalizedError {
+    public var errorDescription: String? {
+        switch self {
+        case .api(let error):
+            return "Server error \(error.code.rawValue) from \(error.serverHost ?? "unknown"): \(error.message)"
+        case .network(let urlError):
+            return "Network error: \(urlError.localizedDescription)"
+        case .decoding(let decodingError, _):
+            return "Response decoding failed: \(decodingError.localizedDescription)"
+        case .httpError(let statusCode, let endpoint, let serverHost):
+            return "HTTP \(statusCode) from \(serverHost ?? "unknown") on endpoint '\(endpoint)'"
+        case .rateLimited(_, let endpoint, let serverHost):
+            return "Rate limited by \(serverHost ?? "unknown") on endpoint '\(endpoint)'"
+        case .invalidConfiguration(let reason):
+            return "Invalid configuration: \(reason)"
+        }
+    }
+}
+
 // MARK: - Convenience helpers
 
 public extension SwiftSonicError {
