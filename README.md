@@ -1,7 +1,10 @@
 # SwiftSonic
 
 [![CI](https://github.com/MathieuDubart/swiftsonic/actions/workflows/ci.yml/badge.svg)](https://github.com/MathieuDubart/swiftsonic/actions/workflows/ci.yml)
-[![Swift 6](https://img.shields.io/badge/Swift-6.0-orange.svg)](https://swift.org)
+[![Swift 6](https://img.shields.io/badge/Swift-6.0-F05138?logo=swift&logoColor=white)](https://swift.org)
+[![SPM compatible](https://img.shields.io/badge/SPM-compatible-4BC51D)](https://swift.org/package-manager)
+[![GitHub release](https://img.shields.io/github/v/release/MathieuDubart/swiftsonic?color=4BC51D)](https://github.com/MathieuDubart/swiftsonic/releases)
+[![Platforms](https://img.shields.io/badge/platforms-iOS%2016%20%7C%20macOS%2013%20%7C%20tvOS%2016%20%7C%20watchOS%209%20%7C%20visionOS%201-lightgrey)](https://developer.apple.com/swift/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 A modern, Swift-native client for the [Subsonic](http://www.subsonic.org/pages/api.jsp) and [OpenSubsonic](https://opensubsonic.netlify.app/) APIs.
