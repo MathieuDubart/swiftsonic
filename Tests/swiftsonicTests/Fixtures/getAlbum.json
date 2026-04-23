@@ -1,0 +1,74 @@
+{
+  "subsonic-response": {
+    "status": "ok",
+    "version": "1.16.1",
+    "type": "navidrome",
+    "openSubsonic": true,
+    "album": {
+      "id": "10",
+      "name": "Ring Ring",
+      "artist": "ABBA",
+      "artistId": "1",
+      "coverArt": "al-10",
+      "songCount": 3,
+      "duration": 720,
+      "year": 1973,
+      "genre": "Pop",
+      "created": "2021-06-01T00:00:00Z",
+      "genres": [{ "name": "Pop" }, { "name": "Europop" }],
+      "song": [
+        {
+          "id": "101",
+          "title": "Ring Ring",
+          "artist": "ABBA",
+          "artistId": "1",
+          "album": "Ring Ring",
+          "albumId": "10",
+          "track": 1,
+          "duration": 190,
+          "year": 1973,
+          "genre": "Pop",
+          "coverArt": "al-10",
+          "size": 6100000,
+          "contentType": "audio/flac",
+          "suffix": "flac",
+          "bitRate": 256
+        },
+        {
+          "id": "102",
+          "title": "Another Town, Another Train",
+          "artist": "ABBA",
+          "artistId": "1",
+          "album": "Ring Ring",
+          "albumId": "10",
+          "track": 2,
+          "duration": 210,
+          "year": 1973,
+          "genre": "Pop",
+          "coverArt": "al-10",
+          "size": 6700000,
+          "contentType": "audio/flac",
+          "suffix": "flac",
+          "bitRate": 256
+        },
+        {
+          "id": "103",
+          "title": "Disillusion",
+          "artist": "ABBA",
+          "artistId": "1",
+          "album": "Ring Ring",
+          "albumId": "10",
+          "track": 3,
+          "duration": 320,
+          "year": 1973,
+          "genre": "Pop",
+          "coverArt": "al-10",
+          "size": 10200000,
+          "contentType": "audio/flac",
+          "suffix": "flac",
+          "bitRate": 256
+        }
+      ]
+    }
+  }
+}

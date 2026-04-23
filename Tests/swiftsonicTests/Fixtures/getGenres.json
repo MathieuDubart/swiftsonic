@@ -1,0 +1,16 @@
+{
+  "subsonic-response": {
+    "status": "ok",
+    "version": "1.16.1",
+    "type": "navidrome",
+    "openSubsonic": true,
+    "genres": {
+      "genre": [
+        { "songCount": 150, "albumCount": 12, "value": "Pop" },
+        { "songCount": 87, "albumCount": 8, "value": "Rock" },
+        { "songCount": 42, "albumCount": 5, "value": "Jazz" },
+        { "songCount": 23, "albumCount": 3, "value": "Electronic" }
+      ]
+    }
+  }
+}

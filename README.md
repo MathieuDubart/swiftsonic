@@ -173,22 +173,22 @@ let client = SwiftSonicClient(
 |---|---|
 | `getMusicFolders` | ✅ |
 | `getArtists` | ✅ |
-| `getArtist` | ❌ |
-| `getAlbum` | ❌ |
-| `getSong` | ❌ |
-| `getGenres` | ❌ |
-| `getIndexes` | ❌ |
-| `getMusicDirectory` | ❌ |
-| `getArtistInfo2` | ❌ |
-| `getAlbumInfo2` | ❌ |
+| `getArtist` | ✅ |
+| `getAlbum` | ✅ |
+| `getSong` | ✅ |
+| `getGenres` | ✅ |
+| `getIndexes` | ✅ |
+| `getMusicDirectory` | ✅ |
+| `getArtistInfo2` | ✅ |
+| `getAlbumInfo2` | ✅ |
 
 ### Lists
 | Endpoint | Status |
 |---|---|
-| `getAlbumList2` | ❌ |
-| `getRandomSongs` | ❌ |
-| `getSongsByGenre` | ❌ |
-| `getStarred2` | ❌ |
+| `getAlbumList2` | ✅ |
+| `getRandomSongs` | ✅ |
+| `getSongsByGenre` | ✅ |
+| `getStarred2` | ✅ |
 
 ### Search
 | Endpoint | Status |

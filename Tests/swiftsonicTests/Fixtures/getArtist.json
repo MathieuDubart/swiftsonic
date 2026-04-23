@@ -1,0 +1,38 @@
+{
+  "subsonic-response": {
+    "status": "ok",
+    "version": "1.16.1",
+    "type": "navidrome",
+    "openSubsonic": true,
+    "artist": {
+      "id": "1",
+      "name": "ABBA",
+      "coverArt": "ar-1",
+      "albumCount": 2,
+      "album": [
+        {
+          "id": "10",
+          "name": "Ring Ring",
+          "artist": "ABBA",
+          "artistId": "1",
+          "coverArt": "al-10",
+          "songCount": 12,
+          "duration": 2400,
+          "year": 1973,
+          "genre": "Pop"
+        },
+        {
+          "id": "11",
+          "name": "Waterloo",
+          "artist": "ABBA",
+          "artistId": "1",
+          "coverArt": "al-11",
+          "songCount": 10,
+          "duration": 2100,
+          "year": 1974,
+          "genre": "Pop"
+        }
+      ]
+    }
+  }
+}

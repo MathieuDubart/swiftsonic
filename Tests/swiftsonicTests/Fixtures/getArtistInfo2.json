@@ -1,0 +1,24 @@
+{
+  "subsonic-response": {
+    "status": "ok",
+    "version": "1.16.1",
+    "type": "navidrome",
+    "openSubsonic": true,
+    "artistInfo2": {
+      "biography": "ABBA is a Swedish pop group formed in Stockholm in 1972.",
+      "musicBrainzId": "d87e52c5-bb8d-4da8-b941-9f4928627dc8",
+      "lastFmUrl": "https://www.last.fm/music/ABBA",
+      "smallImageUrl": "https://lastfm.freetls.fastly.net/i/u/34s/abba.jpg",
+      "mediumImageUrl": "https://lastfm.freetls.fastly.net/i/u/64s/abba.jpg",
+      "largeImageUrl": "https://lastfm.freetls.fastly.net/i/u/174s/abba.jpg",
+      "similarArtist": [
+        {
+          "id": "5",
+          "name": "Boney M.",
+          "albumCount": 4,
+          "coverArt": "ar-5"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "subsonic-response": {
+    "status": "ok",
+    "version": "1.16.1",
+    "type": "navidrome",
+    "openSubsonic": true,
+    "song": {
+      "id": "101",
+      "title": "Ring Ring",
+      "artist": "ABBA",
+      "artistId": "1",
+      "album": "Ring Ring",
+      "albumId": "10",
+      "track": 1,
+      "duration": 190,
+      "year": 1973,
+      "genre": "Pop",
+      "coverArt": "al-10",
+      "size": 6100000,
+      "contentType": "audio/flac",
+      "suffix": "flac",
+      "bitRate": 256,
+      "path": "ABBA/Ring Ring/01 - Ring Ring.flac",
+      "bpm": 128,
+      "replayGain": {
+        "trackGain": -7.2,
+        "albumGain": -8.1,
+        "trackPeak": 0.95
+      },
+      "genres": [{ "name": "Pop" }]
+    }
+  }
+}

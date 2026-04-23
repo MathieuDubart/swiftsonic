@@ -42,6 +42,9 @@ public struct ArtistID3: Codable, Sendable, Identifiable {
 
     /// Roles this artist has contributed (e.g. `["composer", "producer"]`) (OpenSubsonic).
     public let roles: [String]?
+
+    /// Albums by this artist. Only populated by ``SwiftSonicClient/getArtist(id:)``.
+    public let album: [AlbumID3]?
 }
 
 // MARK: - ArtistIndex

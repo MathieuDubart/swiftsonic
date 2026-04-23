@@ -1,0 +1,16 @@
+{
+  "subsonic-response": {
+    "status": "ok",
+    "version": "1.16.1",
+    "type": "navidrome",
+    "openSubsonic": true,
+    "albumInfo": {
+      "notes": "Ring Ring is the debut studio album by the Swedish pop group ABBA.",
+      "musicBrainzId": "b8e42a9c-8291-4899-94a9-5602e0b22ff5",
+      "lastFmUrl": "https://www.last.fm/music/ABBA/Ring+Ring",
+      "smallImageUrl": "https://lastfm.freetls.fastly.net/i/u/34s/ring-ring.jpg",
+      "mediumImageUrl": "https://lastfm.freetls.fastly.net/i/u/64s/ring-ring.jpg",
+      "largeImageUrl": "https://lastfm.freetls.fastly.net/i/u/174s/ring-ring.jpg"
+    }
+  }
+}
