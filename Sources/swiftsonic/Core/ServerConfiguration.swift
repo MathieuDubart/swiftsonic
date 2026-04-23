@@ -95,7 +95,7 @@ public struct ServerConfiguration: Sendable {
     ///
     /// Applied as `URLRequest.timeoutInterval` on every request.
     /// Custom ``HTTPTransport`` implementations should honour this value.
-    /// Defaults to `30` seconds.
+    /// Defaults to `30` seconds. Values below `1` second are clamped to `1`.
     public let requestTimeout: TimeInterval
 
     /// Maximum time for an entire resource download to complete, in seconds.
@@ -128,7 +128,10 @@ public struct ServerConfiguration: Sendable {
         self.auth            = auth
         self.clientName      = clientName
         self.apiVersion      = apiVersion
-        self.requestTimeout  = requestTimeout
+        // Clamp to a minimum of 1 second: a zero or near-zero timeout produces
+        // undefined behaviour across URLSession implementations and would cause
+        // every request to fail immediately, defeating the retry policy.
+        self.requestTimeout  = max(1.0, requestTimeout)
         self.resourceTimeout = resourceTimeout
     }
 
