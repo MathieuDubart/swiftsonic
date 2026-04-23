@@ -1,5 +1,9 @@
 # SwiftSonic
 
+[![CI](https://github.com/MathieuDubart/swiftsonic/actions/workflows/ci.yml/badge.svg)](https://github.com/MathieuDubart/swiftsonic/actions/workflows/ci.yml)
+[![Swift 6](https://img.shields.io/badge/Swift-6.0-orange.svg)](https://swift.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 A modern, Swift-native client for the [Subsonic](http://www.subsonic.org/pages/api.jsp) and [OpenSubsonic](https://opensubsonic.netlify.app/) APIs.
 
 ```swift
@@ -142,6 +146,41 @@ try await client.updatePlaylist(id: newPlaylist.id, isPublic: true, songIdsToAdd
 try await client.deletePlaylist(id: newPlaylist.id)
 ```
 
+### Media URLs
+
+Media URL methods are `nonisolated` — no `await` needed:
+
+```swift
+// Stream a song in AVPlayer
+if let url = client.streamURL(id: "101", maxBitRate: 320, format: "mp3") {
+    let player = AVPlayer(url: url)
+    player.play()
+}
+
+// Cover art for AsyncImage
+if let url = client.coverArtURL(id: "al-10", size: 300) {
+    AsyncImage(url: url)
+}
+
+// Download
+let downloadLink = client.downloadURL(id: "101")
+```
+
+### Annotations
+
+```swift
+// Star songs and albums
+try await client.star(songIds: ["101", "201"], albumIds: ["10"])
+try await client.unstar(songIds: ["101"])
+
+// Rate (1–5, or 0 to remove)
+try await client.setRating(id: "101", rating: 5)
+
+// Scrobble (now playing or completed play)
+try await client.scrobble(id: "101", submission: false) // now playing
+try await client.scrobble(id: "101")                    // completed
+```
+
 ### Error handling
 
 ```swift
@@ -233,18 +272,18 @@ let client = SwiftSonicClient(
 ### Media URLs
 | Endpoint | Status |
 |---|---|
-| `stream` | ❌ |
-| `download` | ❌ |
-| `getCoverArt` | ❌ |
-| `hls` | ❌ |
+| `stream` | ✅ |
+| `download` | ✅ |
+| `getCoverArt` | ✅ |
+| `hls` | ✅ |
 
 ### Annotations
 | Endpoint | Status |
 |---|---|
-| `star` | ❌ |
-| `unstar` | ❌ |
-| `setRating` | ❌ |
-| `scrobble` | ❌ |
+| `star` | ✅ |
+| `unstar` | ✅ |
+| `setRating` | ✅ |
+| `scrobble` | ✅ |
 
 ### User
 | Endpoint | Status |
