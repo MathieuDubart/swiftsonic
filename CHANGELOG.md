@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.5.0] — 2026-04-23
+
+### Security
+
+> **Upgrade recommended.** This release completes the hardening work started in v0.4.1.
+> All items below address findings from the internal security audit.
+
+- **[D3] Cross-domain redirect blocking** — `URLSessionTransport` now uses a per-request `URLSessionTaskDelegate` (`RedirectGuard`) that intercepts HTTP redirects. Any redirect to a host different from the original server is refused and surfaces as the new `SwiftSonicError.insecureRedirect(from:to:)` error. Following a cross-domain redirect would have silently forwarded authentication credentials (embedded as query parameters in the request URL) to an untrusted host. Same-domain redirects continue to be followed normally.
+
+- **[A3] Stronger salt generation** — The Subsonic authentication salt has been increased from 10 to 16 characters (~95 bits of entropy), and `SystemRandomNumberGenerator` is now used explicitly (backed by the OS CSPRNG, `SecRandomCopyBytes` on Apple platforms).
+
+- **[D2] HTTP plain-text warning** — `SwiftSonicClient` now emits an `os.Logger` warning (subsystem `com.swiftsonic`, category `security`) at client initialisation when the configured server URL uses plain HTTP. The warning fires unconditionally regardless of the caller's `logSubsystem` setting, ensuring it is always visible in Console.app.
+
+- **[D4] Request timeout floor** — `ServerConfiguration.requestTimeout` is now clamped to a minimum of 1 second. A zero or near-zero value would cause every request to fail immediately with undefined behaviour across `URLSession` implementations.
+
+- **[C1] `LocalizedError` conformance** — `SwiftSonicError` now conforms to `LocalizedError`. Every `errorDescription` is credential-safe: no usernames, passwords, or API keys appear in any string. Only structural metadata (endpoint name, server hostname, HTTP status code, server-provided message) is included.
+
+### Added
+
+- `SwiftSonicError.insecureRedirect(from: URL, to: URL)` — new error case (non-transient, not an authentication failure).
+
+---
+
 ## [0.4.1] — 2026-04-23
 
 ### Security
@@ -99,6 +122,7 @@ Both fixes are technically breaking for consumers who accessed `requestURL` or p
 - `ResilienceTests` — white-box tests for retry math and error classification
 - MIT licence, `CONTRIBUTING.md`, `SECURITY.md`
 
+[0.5.0]: https://github.com/MathieuDubart/swiftsonic/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/MathieuDubart/swiftsonic/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/MathieuDubart/swiftsonic/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/MathieuDubart/swiftsonic/compare/v0.3.0...v0.3.1
