@@ -332,7 +332,25 @@ public actor SwiftSonicClient {
         let envelope: SubsonicEnvelope<P>
         do {
             let decoder = JSONDecoder()
-            decoder.dateDecodingStrategy = .iso8601
+            // .iso8601 does not handle fractional seconds in the swift test CLI (macOS
+            // Foundation). Use a custom strategy that tries fractional seconds first,
+            // then falls back to the basic format for servers that omit them.
+            decoder.dateDecodingStrategy = .custom { dec in
+                let container = try dec.singleValueContainer()
+                let string = try container.decode(String.self)
+                let withFractional = ISO8601DateFormatter()
+                withFractional.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+                if let date = withFractional.date(from: string) { return date }
+                let basic = ISO8601DateFormatter()
+                basic.formatOptions = [.withInternetDateTime]
+                if let date = basic.date(from: string) { return date }
+                throw DecodingError.dataCorrupted(
+                    DecodingError.Context(
+                        codingPath: dec.codingPath,
+                        debugDescription: "Cannot parse ISO8601 date: \(string)"
+                    )
+                )
+            }
             envelope = try decoder.decode(SubsonicEnvelope<P>.self, from: data)
         } catch let decodingError as DecodingError {
             throw SwiftSonicError.decoding(decodingError, rawData: data)
