@@ -1,0 +1,38 @@
+{
+  "subsonic-response": {
+    "status": "ok",
+    "version": "1.16.1",
+    "type": "navidrome",
+    "serverVersion": "0.53.3",
+    "nowPlaying": {
+      "entry": [
+        {
+          "id": "rF7kG3QpkR3tBqT8GwGiKF",
+          "title": "Hurt",
+          "artist": "Nine Inch Nails",
+          "album": "The Downward Spiral",
+          "duration": 237,
+          "coverArt": "al-3GSnSEURz17ltddsamzmSD_0",
+          "contentType": "audio/mpeg",
+          "username": "alice",
+          "minutesAgo": 2,
+          "playerId": 1,
+          "playerName": "iPhone"
+        },
+        {
+          "id": "pQ9aH2RmjS5vCwU7LxLjNG",
+          "title": "Closer",
+          "artist": "Nine Inch Nails",
+          "album": "The Downward Spiral",
+          "duration": 364,
+          "coverArt": "al-3GSnSEURz17ltddsamzmSD_0",
+          "contentType": "audio/flac",
+          "username": "bob",
+          "minutesAgo": 0,
+          "playerId": 2,
+          "playerName": "Web Player"
+        }
+      ]
+    }
+  }
+}
