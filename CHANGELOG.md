@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.1] — 2026-04-23
+
+### Fixed
+- `JSONDecoder.DateDecodingStrategy.iso8601` does not handle fractional-second timestamps (e.g. `"2026-01-15T10:00:00.000Z"`) in the `swift test` CLI on macOS. Replaced with a custom strategy that tries `.withFractionalSeconds` first and falls back to basic ISO 8601, fixing 15 CI test failures in the `getShares`, `createShare`, `getNewestPodcasts`, `getBookmarks`, and `getPlayQueue` suites.
+
+---
+
 ## [0.3.0] — 2026-04-23
 
 ### Added
@@ -57,6 +64,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ResilienceTests` — white-box tests for retry math and error classification
 - MIT licence, `CONTRIBUTING.md`, `SECURITY.md`
 
+[0.3.1]: https://github.com/MathieuDubart/swiftsonic/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/MathieuDubart/swiftsonic/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/MathieuDubart/swiftsonic/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/MathieuDubart/swiftsonic/releases/tag/v0.1.0
