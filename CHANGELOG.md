@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.4.0] — 2026-04-23
+
+### Added
+
+- **User management** — `getUser(username:)`, `getUsers()`, `createUser(_:)`, `updateUser(_:)`, `deleteUser(username:)`, `changePassword(username:newPassword:)`; new `User`, `NewUser`, and `UserUpdate` models. Passwords are always transmitted as `enc:<hexUTF8>` on the wire — the Swift API accepts plain strings.
+- **Chat** — `getChatMessages(since:)` → `[ChatMessage]`, `addChatMessage(_:)`; new `ChatMessage` model with `time: Date` (milliseconds-since-epoch wire conversion, consistent with `Bookmark`/`Share`).
+- **Lyrics** — `getLyrics(artist:title:)` → `Lyrics?`; new `Lyrics` model (`artist?`, `title?`, `value?`). Returns `nil` when the server returns no lyrics or an empty value.
+- **Now Playing** — `getNowPlaying()` → `[NowPlayingEntry]`; new flat `NowPlayingEntry` model (focused subset: `id`, `title`, `artist`, `album`, `duration`, `coverArt`, `contentType` + `username`, `minutesAgo`, `playerId`, `playerName?`). Returns `[]` when nothing is playing.
+- **Avatar media URL** — `avatarURL(username:)` nonisolated URL builder; mirrors the existing `coverArtURL`/`streamURL` pattern.
+- **Discovery endpoints** — `getArtistInfo(id:count:includeNotPresent:)`, `getAlbumInfo(id:)` (folder-based variant), `getSimilarSongs(id:count:)`, `getSimilarSongs2(id:count:)`, `getTopSongs(artist:count:)` → all reuse the `Song` and `ArtistInfo`/`AlbumInfo` models.
+- **Legacy list endpoints** — `getAlbumList(type:size:offset:…)` → `[Song]` (folder-based; prefer `getAlbumList2` for ID3 browsing); `getStarred(musicFolderId:)` → `Starred` (new folder-based model with `artist?`, `album?`, `song?`).
+- **Legacy search** — `search2(_:…)` → `SearchResult2` (new folder-based model; prefer `search3` for ID3 browsing).
+- **233 tests** across 82 suites (up from 196 in v0.3.1).
+
+---
+
 ## [0.3.1] — 2026-04-23
 
 ### Fixed
@@ -64,6 +80,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ResilienceTests` — white-box tests for retry math and error classification
 - MIT licence, `CONTRIBUTING.md`, `SECURITY.md`
 
+[0.4.0]: https://github.com/MathieuDubart/swiftsonic/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/MathieuDubart/swiftsonic/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/MathieuDubart/swiftsonic/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/MathieuDubart/swiftsonic/compare/v0.1.0...v0.2.0

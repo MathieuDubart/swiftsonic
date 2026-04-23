@@ -294,68 +294,161 @@ let client = SwiftSonicClient(
 ## Endpoint coverage
 
 ### System
-| Endpoint | Status |
+| Endpoint | Swift API |
 |---|---|
-| `ping` | ✅ |
-| `getLicense` | ✅ |
-| `getOpenSubsonicExtensions` | ✅ |
+| `ping` | `ping()` |
+| `getLicense` | `getLicense()` |
+| `getOpenSubsonicExtensions` | `getOpenSubsonicExtensions()` / `fetchCapabilities()` |
 
-### Browsing
-| Endpoint | Status |
+### Browsing (ID3)
+| Endpoint | Swift API |
 |---|---|
-| `getMusicFolders` | ✅ |
-| `getArtists` | ✅ |
-| `getArtist` | ✅ |
-| `getAlbum` | ✅ |
-| `getSong` | ✅ |
-| `getGenres` | ✅ |
-| `getIndexes` | ✅ |
-| `getMusicDirectory` | ✅ |
-| `getArtistInfo2` | ✅ |
-| `getAlbumInfo2` | ✅ |
+| `getMusicFolders` | `getMusicFolders()` |
+| `getArtists` | `getArtists(musicFolderId:)` |
+| `getArtist` | `getArtist(id:)` |
+| `getAlbum` | `getAlbum(id:)` |
+| `getSong` | `getSong(id:)` |
+| `getGenres` | `getGenres()` |
+| `getIndexes` | `getIndexes(musicFolderId:ifModifiedSince:)` |
+| `getMusicDirectory` | `getMusicDirectory(id:)` |
+| `getArtistInfo2` | `getArtistInfo2(id:count:includeNotPresent:)` |
+| `getAlbumInfo2` | `getAlbumInfo2(id:)` |
 
-### Lists
-| Endpoint | Status |
+### Browsing (folder-based)
+| Endpoint | Swift API |
 |---|---|
-| `getAlbumList2` | ✅ |
-| `getRandomSongs` | ✅ |
-| `getSongsByGenre` | ✅ |
-| `getStarred2` | ✅ |
+| `getArtistInfo` | `getArtistInfo(id:count:includeNotPresent:)` |
+| `getAlbumInfo` | `getAlbumInfo(id:)` |
+
+### Lists (ID3)
+| Endpoint | Swift API |
+|---|---|
+| `getAlbumList2` | `getAlbumList2(type:size:offset:…)` |
+| `getRandomSongs` | `getRandomSongs(size:genre:fromYear:toYear:musicFolderId:)` |
+| `getSongsByGenre` | `getSongsByGenre(_:count:offset:musicFolderId:)` |
+| `getStarred2` | `getStarred2(musicFolderId:)` |
+
+### Lists (folder-based)
+| Endpoint | Swift API | Note |
+|---|---|---|
+| `getAlbumList` | `getAlbumList(type:size:offset:…)` | Prefer `getAlbumList2` for ID3 browsing |
+| `getStarred` | `getStarred(musicFolderId:)` | Prefer `getStarred2` for ID3 browsing |
 
 ### Search
-| Endpoint | Status |
+| Endpoint | Swift API | Note |
+|---|---|---|
+| `search3` | `search3(_:artistCount:albumCount:songCount:musicFolderId:)` | |
+| `search2` | `search2(_:artistCount:albumCount:songCount:musicFolderId:)` | Prefer `search3` for ID3 browsing |
+
+### Discovery
+| Endpoint | Swift API |
 |---|---|
-| `search3` | ✅ |
+| `getSimilarSongs` | `getSimilarSongs(id:count:)` |
+| `getSimilarSongs2` | `getSimilarSongs2(id:count:)` |
+| `getTopSongs` | `getTopSongs(artist:count:)` |
 
 ### Playlists
-| Endpoint | Status |
+| Endpoint | Swift API |
 |---|---|
-| `getPlaylists` | ✅ |
-| `getPlaylist` | ✅ |
-| `createPlaylist` | ✅ |
-| `updatePlaylist` | ✅ |
-| `deletePlaylist` | ✅ |
+| `getPlaylists` | `getPlaylists(username:)` |
+| `getPlaylist` | `getPlaylist(id:)` |
+| `createPlaylist` | `createPlaylist(name:songIds:)` |
+| `updatePlaylist` | `updatePlaylist(id:name:comment:isPublic:songIdsToAdd:songIndexesToRemove:)` |
+| `deletePlaylist` | `deletePlaylist(id:)` |
 
-### Media URLs
-| Endpoint | Status |
+### Media URLs (nonisolated, no `await` needed)
+| Endpoint | Swift API |
 |---|---|
-| `stream` | ✅ |
-| `download` | ✅ |
-| `getCoverArt` | ✅ |
-| `hls` | ✅ |
+| `stream` | `streamURL(id:maxBitRate:format:timeOffset:size:estimateContentLength:converted:)` |
+| `download` | `downloadURL(id:)` |
+| `getCoverArt` | `coverArtURL(id:size:)` |
+| `hls` | `hlsURL(id:bitRate:audioTrack:)` |
+| `getAvatar` | `avatarURL(username:)` |
 
 ### Annotations
-| Endpoint | Status |
+| Endpoint | Swift API |
 |---|---|
-| `star` | ✅ |
-| `unstar` | ✅ |
-| `setRating` | ✅ |
-| `scrobble` | ✅ |
+| `star` | `star(songIds:albumIds:artistIds:)` |
+| `unstar` | `unstar(songIds:albumIds:artistIds:)` |
+| `setRating` | `setRating(id:rating:)` |
+| `scrobble` | `scrobble(id:time:submission:)` |
 
-### User
-| Endpoint | Status |
+### Now Playing
+| Endpoint | Swift API |
 |---|---|
-| `getUser` | ❌ |
+| `getNowPlaying` | `getNowPlaying()` |
+
+### Chat
+| Endpoint | Swift API |
+|---|---|
+| `getChatMessages` | `getChatMessages(since:)` |
+| `addChatMessage` | `addChatMessage(_:)` |
+
+### Lyrics
+| Endpoint | Swift API |
+|---|---|
+| `getLyrics` | `getLyrics(artist:title:)` |
+
+### User management
+| Endpoint | Swift API |
+|---|---|
+| `getUser` | `getUser(username:)` |
+| `getUsers` | `getUsers()` |
+| `createUser` | `createUser(_:)` |
+| `updateUser` | `updateUser(_:)` |
+| `deleteUser` | `deleteUser(username:)` |
+| `changePassword` | `changePassword(username:newPassword:)` |
+
+### Bookmarks
+| Endpoint | Swift API |
+|---|---|
+| `getBookmarks` | `getBookmarks()` |
+| `createBookmark` | `createBookmark(songId:position:comment:)` |
+| `deleteBookmark` | `deleteBookmark(songId:)` |
+
+### Play Queue
+| Endpoint | Swift API |
+|---|---|
+| `getPlayQueue` | `getPlayQueue()` |
+| `savePlayQueue` | `savePlayQueue(ids:current:position:)` |
+
+### Shares
+| Endpoint | Swift API |
+|---|---|
+| `getShares` | `getShares()` |
+| `createShare` | `createShare(ids:description:expires:)` |
+| `updateShare` | `updateShare(id:description:expires:)` |
+| `deleteShare` | `deleteShare(id:)` |
+
+### Podcasts
+| Endpoint | Swift API |
+|---|---|
+| `getPodcasts` | `getPodcasts(id:includeEpisodes:)` |
+| `getNewestPodcasts` | `getNewestPodcasts(count:)` |
+| `refreshPodcasts` | `refreshPodcasts()` |
+| `createPodcastChannel` | `createPodcastChannel(url:)` |
+| `deletePodcastChannel` | `deletePodcastChannel(id:)` |
+| `downloadPodcastEpisode` | `downloadPodcastEpisode(id:)` |
+| `deletePodcastEpisode` | `deletePodcastEpisode(id:)` |
+
+### Jukebox
+| Endpoint | Swift API |
+|---|---|
+| `jukeboxControl` | `jukeboxGet()`, `jukeboxStatus()`, `jukeboxStart()`, `jukeboxStop()`, `jukeboxSkip(index:offset:)`, `jukeboxAdd(ids:)`, `jukeboxSet(ids:)`, `jukeboxRemove(index:)`, `jukeboxClear()`, `jukeboxShuffle()`, `jukeboxSetGain(_:)` |
+
+### Internet Radio
+| Endpoint | Swift API |
+|---|---|
+| `getInternetRadioStations` | `getInternetRadioStations()` |
+| `createInternetRadioStation` | `createInternetRadioStation(streamURL:name:homepageURL:)` |
+| `updateInternetRadioStation` | `updateInternetRadioStation(id:streamURL:name:homepageURL:)` |
+| `deleteInternetRadioStation` | `deleteInternetRadioStation(id:)` |
+
+### Scan
+| Endpoint | Swift API |
+|---|---|
+| `getScanStatus` | `getScanStatus()` |
+| `startScan` | `startScan()` |
 
 ---
 
