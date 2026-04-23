@@ -183,7 +183,7 @@ extension SwiftSonicClient {
 
 // MARK: - Response payloads (internal)
 
-struct AlbumList2Container: Decodable {
+struct AlbumList2Container: Decodable, Sendable {
     let album: [AlbumID3]?
 }
 
@@ -196,7 +196,7 @@ struct AlbumList2Payload: SubsonicPayload {
     }
 }
 
-struct SongsContainer: Decodable {
+struct SongsContainer: Decodable, Sendable {
     let song: [Song]?
 }
 

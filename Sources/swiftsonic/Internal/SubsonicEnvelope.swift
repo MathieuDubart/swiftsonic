@@ -26,7 +26,7 @@ import Foundation
 ///     let index: [ArtistIndex]
 /// }
 /// ```
-protocol SubsonicPayload: Decodable {
+protocol SubsonicPayload: Decodable, Sendable {
     /// The JSON key for this payload within the `"subsonic-response"` container.
     static var payloadKey: String { get }
 }
@@ -50,7 +50,7 @@ struct DynamicKey: CodingKey {
 
 // MARK: - Raw error body (Codable, internal)
 
-struct RawErrorBody: Decodable {
+struct RawErrorBody: Decodable, Sendable {
     let code: Int
     let message: String
     let helpUrl: String?
@@ -58,7 +58,7 @@ struct RawErrorBody: Decodable {
 
 // MARK: - Response status
 
-enum ResponseStatus: String, Decodable {
+enum ResponseStatus: String, Decodable, Sendable {
     case ok
     case failed
 }
@@ -66,7 +66,7 @@ enum ResponseStatus: String, Decodable {
 // MARK: - Generic envelope
 
 /// Decodes the Subsonic `"subsonic-response"` JSON envelope and extracts the typed payload.
-struct SubsonicEnvelope<P: SubsonicPayload>: Decodable {
+struct SubsonicEnvelope<P: SubsonicPayload>: Decodable, Sendable {
     let status: ResponseStatus
     let version: String
     let serverType: String?
