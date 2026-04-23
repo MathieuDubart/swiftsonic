@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.4.1] — 2026-04-23
+
+### Security
+
+> **Upgrade recommended.** This release fixes two credential-leak vulnerabilities present in v0.1.0–v0.4.0.
+> See the [GitHub Security Advisory](https://github.com/MathieuDubart/swiftsonic/security/advisories) for full details.
+
+- **[A1] Credential leak via error `requestURL`** — `SwiftSonicError.httpError`, `.rateLimited`, and `SubsonicAPIError` previously stored the full request URL (including `u`, `t`, `s`, or `apiKey` query parameters) as a public `requestURL: URL` field. Any consumer passing these errors to a crash reporter, analytics pipeline, or `print()` call would inadvertently expose authentication credentials. The full URL has been replaced with two credential-free fields: `endpoint: String` (e.g. `"getArtists"`) and `serverHost: String?` (e.g. `"music.example.com"`).
+
+  **Migration:** Replace `error.requestURL` accesses and `httpError(statusCode:requestURL:)` / `rateLimited(retryAfter:requestURL:)` pattern matches with `endpoint:serverHost:`.
+
+- **[A2] Credential leak via default string representation** — `AuthMethod` and `ServerConfiguration` lacked `CustomStringConvertible` conformances. Swift's default enum description prints all associated values, so `print(config.auth)` or inspection in the Xcode debugger Variables panel would output the plaintext password or API key. Both types now redact secrets as `"***"` in all string representations.
+
+### Breaking changes in this patch
+
+Both fixes are technically breaking for consumers who accessed `requestURL` or pattern-matched the old case labels. The old API was insecure by design; the new API is the correct replacement.
+
+---
+
 ## [0.4.0] — 2026-04-23
 
 ### Added
@@ -80,6 +99,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ResilienceTests` — white-box tests for retry math and error classification
 - MIT licence, `CONTRIBUTING.md`, `SECURITY.md`
 
+[0.4.1]: https://github.com/MathieuDubart/swiftsonic/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/MathieuDubart/swiftsonic/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/MathieuDubart/swiftsonic/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/MathieuDubart/swiftsonic/compare/v0.2.0...v0.3.0
