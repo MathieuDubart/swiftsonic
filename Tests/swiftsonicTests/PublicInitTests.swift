@@ -7,6 +7,27 @@ import Testing
 import Foundation
 @testable import SwiftSonic
 
+// MARK: - ArtistIndex
+
+@Suite("ArtistIndex publicInit")
+struct ArtistIndexPublicInitTests {
+
+    @Test("constructs ArtistIndex with default empty artist array")
+    func constructsWithDefaults() {
+        let idx = ArtistIndex(name: "Q")
+        #expect(idx.name == "Q")
+        #expect(idx.artist.isEmpty)
+    }
+
+    @Test("constructs ArtistIndex with artists")
+    func constructsWithArtists() {
+        let a = ArtistID3(id: "1", name: "Queen")
+        let idx = ArtistIndex(name: "Q", artist: [a])
+        #expect(idx.artist.count == 1)
+        #expect(idx.artist[0].id == "1")
+    }
+}
+
 // MARK: - ArtistID3
 
 @Suite("ArtistID3 publicInit")

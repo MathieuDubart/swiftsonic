@@ -85,6 +85,11 @@ public struct ArtistIndex: Codable, Sendable {
 
     /// Artists in this index bucket.
     public let artist: [ArtistID3]
+
+    public init(name: String, artist: [ArtistID3] = []) {
+        self.name   = name
+        self.artist = artist
+    }
 }
 
 // MARK: - ArtistInfo
