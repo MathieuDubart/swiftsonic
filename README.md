@@ -145,10 +145,13 @@ for song in playlist.entry ?? [] {
     print("\(song.title) — \(song.artist ?? "")")
 }
 
-// Create and modify
+// Create
 let newPlaylist = try await client.createPlaylist(name: "Road Trip", songIds: ["101", "202"])
 try await client.updatePlaylist(id: newPlaylist.id, isPublic: true, songIdsToAdd: ["303"])
 try await client.deletePlaylist(id: newPlaylist.id)
+
+// Replace mode — reorder or overwrite an existing playlist's tracks atomically
+try await client.createPlaylist(playlistId: "42", songIds: ["303", "101", "202"])
 ```
 
 ### Media URLs
@@ -174,9 +177,14 @@ let downloadLink = client.downloadURL(id: "101")
 ### Annotations
 
 ```swift
-// Star songs and albums
+// Star songs and albums (multiple IDs)
 try await client.star(songIds: ["101", "201"], albumIds: ["10"])
 try await client.unstar(songIds: ["101"])
+
+// Single-item convenience overloads
+try await client.star(songId: "101")
+try await client.star(albumId: "10")
+try await client.unstar(artistId: "5")
 
 // Rate (1–5, or 0 to remove)
 try await client.setRating(id: "101", rating: 5)
@@ -352,7 +360,7 @@ let client = SwiftSonicClient(
 |---|---|
 | `getPlaylists` | `getPlaylists(username:)` |
 | `getPlaylist` | `getPlaylist(id:)` |
-| `createPlaylist` | `createPlaylist(name:songIds:)` |
+| `createPlaylist` | `createPlaylist(name:playlistId:songIds:)` |
 | `updatePlaylist` | `updatePlaylist(id:name:comment:isPublic:songIdsToAdd:songIndexesToRemove:)` |
 | `deletePlaylist` | `deletePlaylist(id:)` |
 
@@ -368,8 +376,8 @@ let client = SwiftSonicClient(
 ### Annotations
 | Endpoint | Swift API |
 |---|---|
-| `star` | `star(songIds:albumIds:artistIds:)` |
-| `unstar` | `unstar(songIds:albumIds:artistIds:)` |
+| `star` | `star(songIds:albumIds:artistIds:)`, `star(songId:)`, `star(albumId:)`, `star(artistId:)` |
+| `unstar` | `unstar(songIds:albumIds:artistIds:)`, `unstar(songId:)`, `unstar(albumId:)`, `unstar(artistId:)` |
 | `setRating` | `setRating(id:rating:)` |
 | `scrobble` | `scrobble(id:time:submission:)` |
 

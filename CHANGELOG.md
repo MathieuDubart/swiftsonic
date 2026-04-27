@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.6.0] — 2026-04-27
+
+### Added
+
+- **`Equatable` and `Hashable` on core models** — `ArtistID3`, `AlbumID3`, `Song`, `Playlist`, and `PlaylistWithSongs` now conform to `Equatable` and `Hashable`. Equality is keyed on `id`; these types can be used directly as `Set` elements or `Dictionary` keys without a wrapper.
+
+- **Public initialisers on `Playlist` and `PlaylistWithSongs`** — both structs gain a full `public init` with all fields and `nil` defaults, making it easy to construct values in tests or local drafts without going through JSON decoding.
+
+- **`createPlaylist` replace mode** — `createPlaylist` now accepts an optional `playlistId` parameter. When provided, the existing playlist's track list is replaced atomically with `songIds` in order — the only way to reorder a playlist via the Subsonic API. Passing neither `name` nor `playlistId` throws `SwiftSonicError.invalidConfiguration`.
+
+- **Single-item `star` / `unstar` overloads** — `star(songId:)`, `star(albumId:)`, `star(artistId:)` and their `unstar` counterparts avoid wrapping a single ID in an array at the call site.
+
+- **288 tests** across 97 suites (up from 253 in v0.5.0).
+
+---
+
 ## [0.5.0] — 2026-04-23
 
 ### Security
@@ -122,6 +138,7 @@ Both fixes are technically breaking for consumers who accessed `requestURL` or p
 - `ResilienceTests` — white-box tests for retry math and error classification
 - MIT licence, `CONTRIBUTING.md`, `SECURITY.md`
 
+[0.6.0]: https://github.com/MathieuDubart/swiftsonic/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/MathieuDubart/swiftsonic/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/MathieuDubart/swiftsonic/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/MathieuDubart/swiftsonic/compare/v0.3.1...v0.4.0
