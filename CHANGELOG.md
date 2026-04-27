@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.6.1] — 2026-04-27
+
+### Added
+
+- **Public initialisers on `Song`, `AlbumID3`, `ArtistID3`, and `ArtistIndex`** — completes the symmetry with `Playlist` and `PlaylistWithSongs` from v0.6.0. All four types now expose a full `public init` with every field and `nil` defaults on optionals, enabling consumer-side model construction (optimistic UI, previews, test fixtures) without going through JSON decoding.
+
+  Note: nested OpenSubsonic sub-types (`ReplayGain`, `Contributor`, `ItemDate`, `DiscTitle`, `RecordLabel`) remain constructible only via JSON decoding in this release. Public inits for those types can be added on demand.
+
+- **296 tests** across 99 suites (up from 288 in v0.6.0).
+
+### Notes
+
+All changes are additive; no breaking changes from v0.6.0.
+
+---
+
 ## [0.6.0] — 2026-04-27
 
 ### Added
@@ -138,6 +154,7 @@ Both fixes are technically breaking for consumers who accessed `requestURL` or p
 - `ResilienceTests` — white-box tests for retry math and error classification
 - MIT licence, `CONTRIBUTING.md`, `SECURITY.md`
 
+[0.6.1]: https://github.com/MathieuDubart/swiftsonic/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/MathieuDubart/swiftsonic/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/MathieuDubart/swiftsonic/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/MathieuDubart/swiftsonic/compare/v0.4.0...v0.4.1
