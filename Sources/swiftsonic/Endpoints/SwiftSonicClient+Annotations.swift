@@ -54,6 +54,38 @@ public extension SwiftSonicClient {
         try await performVoid(endpoint: "unstar", multiParams: multiParams)
     }
 
+    // MARK: - Single-item convenience overloads
+
+    /// Stars a single song.
+    func star(songId: String) async throws {
+        try await star(songIds: [songId], albumIds: [], artistIds: [])
+    }
+
+    /// Stars a single album.
+    func star(albumId: String) async throws {
+        try await star(songIds: [], albumIds: [albumId], artistIds: [])
+    }
+
+    /// Stars a single artist.
+    func star(artistId: String) async throws {
+        try await star(songIds: [], albumIds: [], artistIds: [artistId])
+    }
+
+    /// Removes the star from a single song.
+    func unstar(songId: String) async throws {
+        try await unstar(songIds: [songId], albumIds: [], artistIds: [])
+    }
+
+    /// Removes the star from a single album.
+    func unstar(albumId: String) async throws {
+        try await unstar(songIds: [], albumIds: [albumId], artistIds: [])
+    }
+
+    /// Removes the star from a single artist.
+    func unstar(artistId: String) async throws {
+        try await unstar(songIds: [], albumIds: [], artistIds: [artistId])
+    }
+
     /// Sets the rating for a song, album, or other media item.
     ///
     /// - Parameters:

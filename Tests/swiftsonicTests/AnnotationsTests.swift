@@ -73,6 +73,125 @@ struct UnstarTests {
         let items = req.url?.query?.components(separatedBy: "&").filter { $0.hasPrefix("id=") }
         #expect(items?.contains("id=101") == true)
     }
+
+    @Test("unstar sends albumId params")
+    func sendsAlbumIds() async throws {
+        let mock = MockHTTPTransport()
+        mock.enqueue(fixture: "ping_ok")
+
+        let client = SwiftSonicClient(configuration: .test, transport: mock)
+        try await client.unstar(albumIds: ["10"])
+
+        let items = mock.lastRequest?.url?.query?.components(separatedBy: "&").filter { $0.hasPrefix("albumId=") }
+        #expect(items?.count == 1)
+        #expect(items?.contains("albumId=10") == true)
+    }
+
+    @Test("unstar sends artistId params")
+    func sendsArtistIds() async throws {
+        let mock = MockHTTPTransport()
+        mock.enqueue(fixture: "ping_ok")
+
+        let client = SwiftSonicClient(configuration: .test, transport: mock)
+        try await client.unstar(artistIds: ["1"])
+
+        let items = mock.lastRequest?.url?.query?.components(separatedBy: "&").filter { $0.hasPrefix("artistId=") }
+        #expect(items?.count == 1)
+    }
+}
+
+// MARK: - star convenience overloads
+
+@Suite("star convenience")
+struct StarConvenienceTests {
+
+    @Test("star(songId:) sends single id param")
+    func sendsSingleSongId() async throws {
+        let mock = MockHTTPTransport()
+        mock.enqueue(fixture: "ping_ok")
+
+        let client = SwiftSonicClient(configuration: .test, transport: mock)
+        try await client.star(songId: "101")
+
+        let req = try #require(mock.lastRequest)
+        #expect(req.url?.path.hasSuffix("/rest/star.view") == true)
+        let items = req.url?.query?.components(separatedBy: "&").filter { $0.hasPrefix("id=") }
+        #expect(items?.count == 1)
+        #expect(items?.contains("id=101") == true)
+    }
+
+    @Test("star(albumId:) sends single albumId param")
+    func sendsSingleAlbumId() async throws {
+        let mock = MockHTTPTransport()
+        mock.enqueue(fixture: "ping_ok")
+
+        let client = SwiftSonicClient(configuration: .test, transport: mock)
+        try await client.star(albumId: "10")
+
+        let items = mock.lastRequest?.url?.query?.components(separatedBy: "&").filter { $0.hasPrefix("albumId=") }
+        #expect(items?.count == 1)
+        #expect(items?.contains("albumId=10") == true)
+    }
+
+    @Test("star(artistId:) sends single artistId param")
+    func sendsSingleArtistId() async throws {
+        let mock = MockHTTPTransport()
+        mock.enqueue(fixture: "ping_ok")
+
+        let client = SwiftSonicClient(configuration: .test, transport: mock)
+        try await client.star(artistId: "1")
+
+        let items = mock.lastRequest?.url?.query?.components(separatedBy: "&").filter { $0.hasPrefix("artistId=") }
+        #expect(items?.count == 1)
+        #expect(items?.contains("artistId=1") == true)
+    }
+}
+
+// MARK: - unstar convenience overloads
+
+@Suite("unstar convenience")
+struct UnstarConvenienceTests {
+
+    @Test("unstar(songId:) sends single id param")
+    func sendsSingleSongId() async throws {
+        let mock = MockHTTPTransport()
+        mock.enqueue(fixture: "ping_ok")
+
+        let client = SwiftSonicClient(configuration: .test, transport: mock)
+        try await client.unstar(songId: "101")
+
+        let req = try #require(mock.lastRequest)
+        #expect(req.url?.path.hasSuffix("/rest/unstar.view") == true)
+        let items = req.url?.query?.components(separatedBy: "&").filter { $0.hasPrefix("id=") }
+        #expect(items?.count == 1)
+        #expect(items?.contains("id=101") == true)
+    }
+
+    @Test("unstar(albumId:) sends single albumId param")
+    func sendsSingleAlbumId() async throws {
+        let mock = MockHTTPTransport()
+        mock.enqueue(fixture: "ping_ok")
+
+        let client = SwiftSonicClient(configuration: .test, transport: mock)
+        try await client.unstar(albumId: "10")
+
+        let items = mock.lastRequest?.url?.query?.components(separatedBy: "&").filter { $0.hasPrefix("albumId=") }
+        #expect(items?.count == 1)
+        #expect(items?.contains("albumId=10") == true)
+    }
+
+    @Test("unstar(artistId:) sends single artistId param")
+    func sendsSingleArtistId() async throws {
+        let mock = MockHTTPTransport()
+        mock.enqueue(fixture: "ping_ok")
+
+        let client = SwiftSonicClient(configuration: .test, transport: mock)
+        try await client.unstar(artistId: "1")
+
+        let items = mock.lastRequest?.url?.query?.components(separatedBy: "&").filter { $0.hasPrefix("artistId=") }
+        #expect(items?.count == 1)
+        #expect(items?.contains("artistId=1") == true)
+    }
 }
 
 // MARK: - setRating
