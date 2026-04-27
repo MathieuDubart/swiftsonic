@@ -205,3 +205,65 @@ struct DeletePlaylistTests {
         #expect(req.url?.path.hasSuffix("/rest/deletePlaylist.view") == true)
     }
 }
+
+// MARK: - Playlist public initializer
+
+@Suite("Playlist public initializer")
+struct PlaylistPublicInitTests {
+
+    @Test("constructs Playlist with required fields and nil defaults")
+    func constructsWithDefaults() {
+        let p = Playlist(id: "7", name: "Road Trip", songCount: 12, duration: 3600)
+        #expect(p.id == "7")
+        #expect(p.name == "Road Trip")
+        #expect(p.songCount == 12)
+        #expect(p.duration == 3600)
+        #expect(p.comment == nil)
+        #expect(p.owner == nil)
+        #expect(p.isPublic == nil)
+        #expect(p.created == nil)
+        #expect(p.changed == nil)
+        #expect(p.coverArt == nil)
+    }
+
+    @Test("constructs Playlist with all fields")
+    func constructsWithAllFields() {
+        let now = Date()
+        let p = Playlist(
+            id: "8", name: "Party", songCount: 5, duration: 900,
+            comment: "Banger", owner: "alice", isPublic: true,
+            created: now, changed: now, coverArt: "art-8"
+        )
+        #expect(p.comment == "Banger")
+        #expect(p.owner == "alice")
+        #expect(p.isPublic == true)
+        #expect(p.coverArt == "art-8")
+    }
+}
+
+// MARK: - PlaylistWithSongs public initializer
+
+@Suite("PlaylistWithSongs public initializer")
+struct PlaylistWithSongsPublicInitTests {
+
+    @Test("constructs PlaylistWithSongs with required fields and nil defaults")
+    func constructsWithDefaults() {
+        let p = PlaylistWithSongs(id: "9", name: "Chill", songCount: 3, duration: 720)
+        #expect(p.id == "9")
+        #expect(p.name == "Chill")
+        #expect(p.songCount == 3)
+        #expect(p.duration == 720)
+        #expect(p.entry == nil)
+        #expect(p.comment == nil)
+        #expect(p.isPublic == nil)
+    }
+
+    @Test("constructs PlaylistWithSongs with entry songs")
+    func constructsWithEntry() throws {
+        let songJSON = #"{"id":"101","title":"Test Song"}"#
+        let song = try JSONDecoder().decode(Song.self, from: Data(songJSON.utf8))
+        let p = PlaylistWithSongs(id: "9", name: "Chill", songCount: 1, duration: 180, entry: [song])
+        #expect(p.entry?.count == 1)
+        #expect(p.entry?[0].id == "101")
+    }
+}

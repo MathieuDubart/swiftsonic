@@ -25,6 +25,32 @@ public struct Playlist: Decodable, Sendable, Identifiable, Equatable, Hashable {
     public let changed: Date?
     public let coverArt: String?
 
+    // MARK: Public initializer
+
+    public init(
+        id: String,
+        name: String,
+        songCount: Int,
+        duration: Int,
+        comment: String? = nil,
+        owner: String? = nil,
+        isPublic: Bool? = nil,
+        created: Date? = nil,
+        changed: Date? = nil,
+        coverArt: String? = nil
+    ) {
+        self.id        = id
+        self.name      = name
+        self.songCount = songCount
+        self.duration  = duration
+        self.comment   = comment
+        self.owner     = owner
+        self.isPublic  = isPublic
+        self.created   = created
+        self.changed   = changed
+        self.coverArt  = coverArt
+    }
+
     // MARK: CodingKeys
 
     enum CodingKeys: String, CodingKey {
@@ -54,6 +80,34 @@ public struct PlaylistWithSongs: Decodable, Sendable, Identifiable, Equatable, H
     public let coverArt: String?
     /// The ordered list of tracks in this playlist.
     public let entry: [Song]?
+
+    // MARK: Public initializer
+
+    public init(
+        id: String,
+        name: String,
+        songCount: Int,
+        duration: Int,
+        comment: String? = nil,
+        owner: String? = nil,
+        isPublic: Bool? = nil,
+        created: Date? = nil,
+        changed: Date? = nil,
+        coverArt: String? = nil,
+        entry: [Song]? = nil
+    ) {
+        self.id        = id
+        self.name      = name
+        self.songCount = songCount
+        self.duration  = duration
+        self.comment   = comment
+        self.owner     = owner
+        self.isPublic  = isPublic
+        self.created   = created
+        self.changed   = changed
+        self.coverArt  = coverArt
+        self.entry     = entry
+    }
 
     enum CodingKeys: String, CodingKey {
         case id, name, comment, owner
