@@ -124,6 +124,46 @@ struct CreatePlaylistTests {
         #expect(items?.contains("songId=101") == true)
         #expect(items?.contains("songId=201") == true)
     }
+
+    @Test("createPlaylist_withPlaylistIdSendsReplaceMode")
+    func withPlaylistIdSendsReplaceMode() async throws {
+        let mock = MockHTTPTransport()
+        mock.enqueue(fixture: "createPlaylist")
+
+        let client = SwiftSonicClient(configuration: .test, transport: mock)
+        _ = try await client.createPlaylist(playlistId: "42", songIds: ["101", "201"])
+
+        #expect(mock.queryItem(named: "playlistId") == "42")
+        #expect(mock.queryItem(named: "name") == nil)
+
+        let req = try #require(mock.lastRequest)
+        let songItems = req.url?.query?.components(separatedBy: "&").filter { $0.hasPrefix("songId=") }
+        #expect(songItems?.count == 2)
+    }
+
+    @Test("createPlaylist_withPlaylistIdAndOrderedSongs")
+    func withPlaylistIdAndOrderedSongs() async throws {
+        let mock = MockHTTPTransport()
+        mock.enqueue(fixture: "createPlaylist")
+
+        let client = SwiftSonicClient(configuration: .test, transport: mock)
+        _ = try await client.createPlaylist(playlistId: "42", songIds: ["101", "201", "301"])
+
+        let req = try #require(mock.lastRequest)
+        let query = req.url?.query ?? ""
+        let items = query.components(separatedBy: "&").filter { $0.hasPrefix("songId=") }
+        #expect(items == ["songId=101", "songId=201", "songId=301"])
+    }
+
+    @Test("createPlaylist_throwsWhenBothNameAndPlaylistIdAreNil")
+    func throwsWhenBothAreNil() async throws {
+        let mock = MockHTTPTransport()
+        let client = SwiftSonicClient(configuration: .test, transport: mock)
+
+        await #expect(throws: SwiftSonicError.self) {
+            _ = try await client.createPlaylist()
+        }
+    }
 }
 
 // MARK: - updatePlaylist

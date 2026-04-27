@@ -66,15 +66,40 @@ public extension SwiftSonicClient {
         return playlist
     }
 
-    /// Creates a new playlist.
+    /// Creates a new playlist, or replaces the songs of an existing one.
+    ///
+    /// **Create mode** (`playlistId` is `nil`): `name` is required. A new playlist is created
+    /// with the given name and optional initial track list.
+    ///
+    /// **Replace mode** (`playlistId` is non-nil): The track list of the specified playlist is
+    /// replaced atomically with `songIds`, in order. This is the only way to reorder a
+    /// playlist via the Subsonic API. `name` is ignored in this mode.
     ///
     /// - Parameters:
-    ///   - name: The name of the playlist to create.
-    ///   - songIds: Optional list of song IDs to add to the new playlist.
-    /// - Returns: The newly created ``PlaylistWithSongs``.
+    ///   - name: The name of the new playlist. Required when `playlistId` is `nil`.
+    ///   - playlistId: The ID of an existing playlist to replace. When provided, the
+    ///     playlist's songs are replaced with `songIds`.
+    ///   - songIds: Song IDs to populate the playlist with, in order.
+    /// - Returns: The created or updated ``PlaylistWithSongs``.
+    /// - Throws: ``SwiftSonicError/invalidConfiguration(_:)`` when both `name` and `playlistId` are `nil`.
     @discardableResult
-    func createPlaylist(name: String, songIds: [String] = []) async throws -> PlaylistWithSongs {
-        let params: [String: String] = ["name": name]
+    func createPlaylist(
+        name: String? = nil,
+        playlistId: String? = nil,
+        songIds: [String] = []
+    ) async throws -> PlaylistWithSongs {
+        guard name != nil || playlistId != nil else {
+            throw SwiftSonicError.invalidConfiguration(
+                "createPlaylist requires either 'name' (create mode) or 'playlistId' (replace mode)"
+            )
+        }
+
+        var params: [String: String] = [:]
+        if let id = playlistId {
+            params["playlistId"] = id
+        } else if let n = name {
+            params["name"] = n
+        }
         let multiParams: [String: [String]] = songIds.isEmpty ? [:] : ["songId": songIds]
 
         let envelope: SubsonicEnvelope<PlaylistPayload> =
