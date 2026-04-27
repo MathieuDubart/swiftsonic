@@ -7,6 +7,45 @@ import Testing
 import Foundation
 @testable import SwiftSonic
 
+// MARK: - Song
+
+@Suite("Song publicInit")
+struct SongPublicInitTests {
+
+    @Test("constructs Song with required fields and nil defaults")
+    func constructsWithDefaults() {
+        let s = Song(id: "101", title: "Bohemian Rhapsody")
+        #expect(s.id == "101")
+        #expect(s.title == "Bohemian Rhapsody")
+        #expect(s.artist == nil)
+        #expect(s.album == nil)
+        #expect(s.duration == nil)
+        #expect(s.starred == nil)
+        #expect(s.replayGain == nil)
+        #expect(s.contributors == nil)
+    }
+
+    @Test("constructs Song with common fields")
+    func constructsWithCommonFields() {
+        let now = Date()
+        let s = Song(
+            id: "102", title: "Stairway to Heaven",
+            album: "Led Zeppelin IV", artist: "Led Zeppelin",
+            track: 8, year: 1971,
+            duration: 482, bitRate: 320,
+            starred: now, albumId: "20", artistId: "5"
+        )
+        #expect(s.album == "Led Zeppelin IV")
+        #expect(s.artist == "Led Zeppelin")
+        #expect(s.track == 8)
+        #expect(s.year == 1971)
+        #expect(s.duration == 482)
+        #expect(s.starred == now)
+        #expect(s.albumId == "20")
+        #expect(s.artistId == "5")
+    }
+}
+
 // MARK: - AlbumID3
 
 @Suite("AlbumID3 publicInit")

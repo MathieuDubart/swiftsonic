@@ -162,6 +162,102 @@ public struct Song: Codable, Sendable, Identifiable, Equatable, Hashable {
     /// Values: `"notExplicit"`, `"explicit"`, `"edited"`.
     public let explicitStatus: String?
 
+    public init(
+        id: String,
+        title: String,
+        parent: String? = nil,
+        isDir: Bool? = nil,
+        album: String? = nil,
+        artist: String? = nil,
+        track: Int? = nil,
+        year: Int? = nil,
+        genre: String? = nil,
+        coverArt: String? = nil,
+        size: Int? = nil,
+        contentType: String? = nil,
+        suffix: String? = nil,
+        transcodedContentType: String? = nil,
+        transcodedSuffix: String? = nil,
+        duration: Int? = nil,
+        bitRate: Int? = nil,
+        path: String? = nil,
+        isVideo: Bool? = nil,
+        userRating: Int? = nil,
+        averageRating: Double? = nil,
+        playCount: Int? = nil,
+        discNumber: Int? = nil,
+        created: Date? = nil,
+        starred: Date? = nil,
+        albumId: String? = nil,
+        artistId: String? = nil,
+        type: String? = nil,
+        played: Date? = nil,
+        bpm: Int? = nil,
+        comment: String? = nil,
+        sortName: String? = nil,
+        musicBrainzId: String? = nil,
+        genres: [ItemGenre]? = nil,
+        artists: [ArtistID3]? = nil,
+        displayArtist: String? = nil,
+        albumArtists: [ArtistID3]? = nil,
+        displayAlbumArtist: String? = nil,
+        contributors: [Contributor]? = nil,
+        replayGain: ReplayGain? = nil,
+        bitDepth: Int? = nil,
+        samplingRate: Int? = nil,
+        channelCount: Int? = nil,
+        moods: [String]? = nil,
+        isrc: [String]? = nil,
+        explicitStatus: String? = nil
+    ) {
+        self.id                   = id
+        self.title                = title
+        self.parent               = parent
+        self.isDir                = isDir
+        self.album                = album
+        self.artist               = artist
+        self.track                = track
+        self.year                 = year
+        self.genre                = genre
+        self.coverArt             = coverArt
+        self.size                 = size
+        self.contentType          = contentType
+        self.suffix               = suffix
+        self.transcodedContentType = transcodedContentType
+        self.transcodedSuffix     = transcodedSuffix
+        self.duration             = duration
+        self.bitRate              = bitRate
+        self.path                 = path
+        self.isVideo              = isVideo
+        self.userRating           = userRating
+        self.averageRating        = averageRating
+        self.playCount            = playCount
+        self.discNumber           = discNumber
+        self.created              = created
+        self.starred              = starred
+        self.albumId              = albumId
+        self.artistId             = artistId
+        self.type                 = type
+        self.played               = played
+        self.bpm                  = bpm
+        self.comment              = comment
+        self.sortName             = sortName
+        self.musicBrainzId        = musicBrainzId
+        self.genres               = genres
+        self.artists              = artists
+        self.displayArtist        = displayArtist
+        self.albumArtists         = albumArtists
+        self.displayAlbumArtist   = displayAlbumArtist
+        self.contributors         = contributors
+        self.replayGain           = replayGain
+        self.bitDepth             = bitDepth
+        self.samplingRate         = samplingRate
+        self.channelCount         = channelCount
+        self.moods                = moods
+        self.isrc                 = isrc
+        self.explicitStatus       = explicitStatus
+    }
+
     public static func == (lhs: Song, rhs: Song) -> Bool { lhs.id == rhs.id }
     public func hash(into hasher: inout Hasher) { hasher.combine(id) }
 }
