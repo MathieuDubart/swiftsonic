@@ -13,7 +13,7 @@ import Foundation
 ///
 /// Returned by ``SwiftSonicClient/getAlbum(id:)``, ``SwiftSonicClient/getArtist(id:)``,
 /// ``SwiftSonicClient/getAlbumList2(type:size:offset:fromYear:toYear:genre:musicFolderId:)``, etc.
-public struct AlbumID3: Codable, Sendable, Identifiable {
+public struct AlbumID3: Codable, Sendable, Identifiable, Equatable, Hashable {
     /// The unique server-assigned identifier.
     public let id: String
 
@@ -96,6 +96,9 @@ public struct AlbumID3: Codable, Sendable, Identifiable {
 
     /// The songs on this album. Only populated by ``SwiftSonicClient/getAlbum(id:)``.
     public let song: [Song]?
+
+    public static func == (lhs: AlbumID3, rhs: AlbumID3) -> Bool { lhs.id == rhs.id }
+    public func hash(into hasher: inout Hasher) { hasher.combine(id) }
 }
 
 // MARK: - AlbumInfo

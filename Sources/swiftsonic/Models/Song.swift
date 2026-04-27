@@ -17,7 +17,7 @@ import Foundation
 ///
 /// Returned by ``SwiftSonicClient/getAlbum(id:)``, ``SwiftSonicClient/getSong(id:)``,
 /// ``SwiftSonicClient/getRandomSongs(size:genre:fromYear:toYear:musicFolderId:)``, etc.
-public struct Song: Codable, Sendable, Identifiable {
+public struct Song: Codable, Sendable, Identifiable, Equatable, Hashable {
     // MARK: Core fields
 
     /// The unique server-assigned identifier.
@@ -161,4 +161,7 @@ public struct Song: Codable, Sendable, Identifiable {
     ///
     /// Values: `"notExplicit"`, `"explicit"`, `"edited"`.
     public let explicitStatus: String?
+
+    public static func == (lhs: Song, rhs: Song) -> Bool { lhs.id == rhs.id }
+    public func hash(into hasher: inout Hasher) { hasher.combine(id) }
 }

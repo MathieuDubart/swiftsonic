@@ -13,7 +13,7 @@ import Foundation
 /// A music artist with full ID3-style metadata.
 ///
 /// Returned by ``SwiftSonicClient/getArtists()`` and ``SwiftSonicClient/getArtist(id:)``.
-public struct ArtistID3: Codable, Sendable, Identifiable {
+public struct ArtistID3: Codable, Sendable, Identifiable, Equatable, Hashable {
     /// The unique server-assigned identifier for this artist.
     public let id: String
 
@@ -45,6 +45,9 @@ public struct ArtistID3: Codable, Sendable, Identifiable {
 
     /// Albums by this artist. Only populated by ``SwiftSonicClient/getArtist(id:)``.
     public let album: [AlbumID3]?
+
+    public static func == (lhs: ArtistID3, rhs: ArtistID3) -> Bool { lhs.id == rhs.id }
+    public func hash(into hasher: inout Hasher) { hasher.combine(id) }
 }
 
 // MARK: - ArtistIndex

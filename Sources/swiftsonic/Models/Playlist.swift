@@ -8,7 +8,7 @@ import Foundation
 // MARK: - Playlist
 
 /// A Subsonic playlist.
-public struct Playlist: Decodable, Sendable, Identifiable {
+public struct Playlist: Decodable, Sendable, Identifiable, Equatable, Hashable {
 
     // MARK: Core fields
 
@@ -32,12 +32,15 @@ public struct Playlist: Decodable, Sendable, Identifiable {
         case isPublic = "public"
         case songCount, duration, created, changed, coverArt
     }
+
+    public static func == (lhs: Playlist, rhs: Playlist) -> Bool { lhs.id == rhs.id }
+    public func hash(into hasher: inout Hasher) { hasher.combine(id) }
 }
 
 // MARK: - PlaylistWithSongs
 
 /// A playlist that includes its track list (returned by `getPlaylist`).
-public struct PlaylistWithSongs: Decodable, Sendable, Identifiable {
+public struct PlaylistWithSongs: Decodable, Sendable, Identifiable, Equatable, Hashable {
 
     public let id: String
     public let name: String
@@ -57,4 +60,7 @@ public struct PlaylistWithSongs: Decodable, Sendable, Identifiable {
         case isPublic = "public"
         case songCount, duration, created, changed, coverArt, entry
     }
+
+    public static func == (lhs: PlaylistWithSongs, rhs: PlaylistWithSongs) -> Bool { lhs.id == rhs.id }
+    public func hash(into hasher: inout Hasher) { hasher.combine(id) }
 }
