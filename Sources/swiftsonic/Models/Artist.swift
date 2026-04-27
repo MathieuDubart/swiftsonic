@@ -46,6 +46,30 @@ public struct ArtistID3: Codable, Sendable, Identifiable, Equatable, Hashable {
     /// Albums by this artist. Only populated by ``SwiftSonicClient/getArtist(id:)``.
     public let album: [AlbumID3]?
 
+    public init(
+        id: String,
+        name: String,
+        albumCount: Int? = nil,
+        coverArt: String? = nil,
+        starred: Date? = nil,
+        userRating: Int? = nil,
+        musicBrainzId: String? = nil,
+        sortName: String? = nil,
+        roles: [String]? = nil,
+        album: [AlbumID3]? = nil
+    ) {
+        self.id            = id
+        self.name          = name
+        self.albumCount    = albumCount
+        self.coverArt      = coverArt
+        self.starred       = starred
+        self.userRating    = userRating
+        self.musicBrainzId = musicBrainzId
+        self.sortName      = sortName
+        self.roles         = roles
+        self.album         = album
+    }
+
     public static func == (lhs: ArtistID3, rhs: ArtistID3) -> Bool { lhs.id == rhs.id }
     public func hash(into hasher: inout Hasher) { hasher.combine(id) }
 }
