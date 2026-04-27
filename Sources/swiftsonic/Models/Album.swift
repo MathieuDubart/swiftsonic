@@ -97,6 +97,64 @@ public struct AlbumID3: Codable, Sendable, Identifiable, Equatable, Hashable {
     /// The songs on this album. Only populated by ``SwiftSonicClient/getAlbum(id:)``.
     public let song: [Song]?
 
+    public init(
+        id: String,
+        name: String,
+        songCount: Int,
+        duration: Int,
+        artist: String? = nil,
+        artistId: String? = nil,
+        coverArt: String? = nil,
+        playCount: Int? = nil,
+        created: Date? = nil,
+        starred: Date? = nil,
+        year: Int? = nil,
+        genre: String? = nil,
+        played: Date? = nil,
+        userRating: Int? = nil,
+        musicBrainzId: String? = nil,
+        genres: [ItemGenre]? = nil,
+        artists: [ArtistID3]? = nil,
+        displayArtist: String? = nil,
+        releaseTypes: [String]? = nil,
+        moods: [String]? = nil,
+        sortName: String? = nil,
+        originalReleaseDate: ItemDate? = nil,
+        releaseDate: ItemDate? = nil,
+        isCompilation: Bool? = nil,
+        discTitles: [DiscTitle]? = nil,
+        recordLabels: [RecordLabel]? = nil,
+        song: [Song]? = nil
+    ) {
+        self.id                  = id
+        self.name                = name
+        self.songCount           = songCount
+        self.duration            = duration
+        self.artist              = artist
+        self.artistId            = artistId
+        self.coverArt            = coverArt
+        self.playCount           = playCount
+        self.created             = created
+        self.starred             = starred
+        self.year                = year
+        self.genre               = genre
+        self.played              = played
+        self.userRating          = userRating
+        self.musicBrainzId       = musicBrainzId
+        self.genres              = genres
+        self.artists             = artists
+        self.displayArtist       = displayArtist
+        self.releaseTypes        = releaseTypes
+        self.moods               = moods
+        self.sortName            = sortName
+        self.originalReleaseDate = originalReleaseDate
+        self.releaseDate         = releaseDate
+        self.isCompilation       = isCompilation
+        self.discTitles          = discTitles
+        self.recordLabels        = recordLabels
+        self.song                = song
+    }
+
     public static func == (lhs: AlbumID3, rhs: AlbumID3) -> Bool { lhs.id == rhs.id }
     public func hash(into hasher: inout Hasher) { hasher.combine(id) }
 }

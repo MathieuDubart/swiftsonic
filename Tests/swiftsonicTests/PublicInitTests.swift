@@ -7,6 +7,46 @@ import Testing
 import Foundation
 @testable import SwiftSonic
 
+// MARK: - AlbumID3
+
+@Suite("AlbumID3 publicInit")
+struct AlbumID3PublicInitTests {
+
+    @Test("constructs AlbumID3 with required fields and nil defaults")
+    func constructsWithDefaults() {
+        let a = AlbumID3(id: "10", name: "A Night at the Opera", songCount: 12, duration: 2640)
+        #expect(a.id == "10")
+        #expect(a.name == "A Night at the Opera")
+        #expect(a.songCount == 12)
+        #expect(a.duration == 2640)
+        #expect(a.artist == nil)
+        #expect(a.artistId == nil)
+        #expect(a.coverArt == nil)
+        #expect(a.starred == nil)
+        #expect(a.year == nil)
+        #expect(a.song == nil)
+    }
+
+    @Test("constructs AlbumID3 with all optional fields")
+    func constructsWithAllFields() {
+        let now = Date()
+        let a = AlbumID3(
+            id: "11", name: "OK Computer", songCount: 12, duration: 3120,
+            artist: "Radiohead", artistId: "2",
+            coverArt: "art-11", playCount: 99,
+            created: now, starred: now,
+            year: 1997, genre: "Alternative",
+            userRating: 5, isCompilation: false
+        )
+        #expect(a.artist == "Radiohead")
+        #expect(a.artistId == "2")
+        #expect(a.year == 1997)
+        #expect(a.genre == "Alternative")
+        #expect(a.userRating == 5)
+        #expect(a.isCompilation == false)
+    }
+}
+
 // MARK: - ArtistIndex
 
 @Suite("ArtistIndex publicInit")
