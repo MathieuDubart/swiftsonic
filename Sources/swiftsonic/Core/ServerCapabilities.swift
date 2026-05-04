@@ -3,19 +3,55 @@
 // Represents the capabilities reported by the server after calling fetchCapabilities().
 // Populated from ping (base fields) and getOpenSubsonicExtensions (extension map).
 //
-// Use supports(_:version:) to safely gate calls to OpenSubsonic-specific endpoints.
+// Use supports(_:) to safely gate calls to OpenSubsonic-specific endpoints.
 
 import Foundation
+
+// MARK: - KnownExtension
+
+/// Well-known OpenSubsonic extension identifiers.
+///
+/// Pass to ``ServerCapabilities/supports(_:)-8y7jh`` to check support without
+/// hardcoding raw strings.
+///
+/// ```swift
+/// if capabilities.supports(.songLyrics) {
+///     let lyrics = try await client.getLyricsBySongId(id: song.id)
+/// }
+/// ```
+public enum KnownExtension: String, Sendable, CaseIterable {
+    /// Structured lyrics with optional per-line timing.
+    case songLyrics           = "songLyrics"
+    /// `offset` parameter on `stream` for mid-track resume.
+    case transcodeOffset      = "transcodeOffset"
+    /// HTTP POST for API requests (alternative to GET).
+    case formPost             = "formPost"
+    /// API key authentication (alternative to token auth).
+    case apiKeyAuthentication = "apiKeyAuthentication"
+    /// Index-based play queue operations.
+    case indexBasedQueue      = "indexBasedQueue"
+    /// Playback reporting endpoints.
+    case playbackReport       = "playbackReport"
+    /// Sonic-similarity search endpoints.
+    case sonicSimilarity      = "sonicSimilarity"
+    /// Transcoding decision and stream endpoints.
+    case transcoding          = "transcoding"
+    /// Single podcast episode fetch.
+    case getPodcastEpisode    = "getPodcastEpisode"
+}
+
+// MARK: - ServerCapabilities
 
 /// The capabilities and version information reported by a connected server.
 ///
 /// Populated by calling ``SwiftSonicClient/fetchCapabilities()``.
-/// Access via ``SwiftSonicClient/serverCapabilities`` (nil until fetched).
+/// Access via ``SwiftSonicClient/serverCapabilities`` (nil until fetched) or
+/// ``SwiftSonicClient/loadCapabilities()`` (lazy, never nil after a successful ping).
 ///
 /// ```swift
-/// try await client.fetchCapabilities()
-/// if client.serverCapabilities?.supports("songLyrics") == true {
-///     let lyrics = try await client.getLyricsBySongId("song-123")
+/// let caps = try await client.loadCapabilities()
+/// if caps.supports(.songLyrics) {
+///     let lyrics = try await client.getLyricsBySongId(id: "song-123")
 /// }
 /// ```
 public struct ServerCapabilities: Sendable {
@@ -39,10 +75,26 @@ public struct ServerCapabilities: Sendable {
     ///
     /// Example: `["songLyrics": [1, 2], "apiKeyAuthentication": [1]]`
     ///
-    /// Use ``supports(_:version:)`` rather than querying this directly.
+    /// Use ``supports(_:)-9q8rp`` or ``supports(_:version:)-7q2n5`` rather than querying this directly.
     public let extensions: [String: [Int]]
 
-    // MARK: - Extension support check
+    // MARK: - Derived view
+
+    /// The OpenSubsonic extensions as a typed array.
+    ///
+    /// Derived from ``extensions``. Element order is not guaranteed.
+    public var extensionList: [OpenSubsonicExtension] {
+        extensions.map { OpenSubsonicExtension(name: $0.key, versions: $0.value) }
+    }
+
+    // MARK: - Extension support checks
+
+    /// Returns `true` if the server supports the given well-known extension.
+    ///
+    /// - Parameter knownExtension: A ``KnownExtension`` case.
+    public func supports(_ knownExtension: KnownExtension) -> Bool {
+        supports(knownExtension.rawValue)
+    }
 
     /// Returns `true` if the server supports the named OpenSubsonic extension at the given version.
     ///
@@ -57,19 +109,36 @@ public struct ServerCapabilities: Sendable {
         return versions.contains(version)
     }
 
-    // MARK: - Internal init
+    // MARK: - Factory
 
-    init(
+    /// Returns a ``ServerCapabilities`` representing a Subsonic legacy server with no
+    /// OpenSubsonic extensions.
+    ///
+    /// Used as a safe fallback when ``SwiftSonicClient/loadCapabilities()`` cannot
+    /// reach the extensions endpoint, or when building test stubs.
+    public static func legacy() -> ServerCapabilities {
+        ServerCapabilities(
+            apiVersion: "",
+            isOpenSubsonic: false,
+            serverType: nil,
+            serverVersion: nil,
+            extensions: [:]
+        )
+    }
+
+    // MARK: - Initializer
+
+    public init(
         apiVersion: String,
         isOpenSubsonic: Bool,
         serverType: String?,
         serverVersion: String?,
         extensions: [String: [Int]]
     ) {
-        self.apiVersion = apiVersion
+        self.apiVersion     = apiVersion
         self.isOpenSubsonic = isOpenSubsonic
-        self.serverType = serverType
-        self.serverVersion = serverVersion
-        self.extensions = extensions
+        self.serverType     = serverType
+        self.serverVersion  = serverVersion
+        self.extensions     = extensions
     }
 }

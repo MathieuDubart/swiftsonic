@@ -1,0 +1,31 @@
+{
+  "subsonic-response": {
+    "status": "ok",
+    "version": "1.16.1",
+    "type": "navidrome",
+    "serverVersion": "0.53.3 (67f8f2c3)",
+    "openSubsonic": true,
+    "lyricsList": {
+      "structuredLyrics": [
+        {
+          "lang": "en",
+          "synced": false,
+          "displayTitle": "Hurt",
+          "line": [
+            { "value": "I hurt myself today" },
+            { "value": "To see if I still feel" }
+          ]
+        },
+        {
+          "lang": "fr",
+          "synced": false,
+          "displayTitle": "Blessure",
+          "line": [
+            { "value": "Je me suis blessé aujourd'hui" },
+            { "value": "Pour voir si je ressens encore" }
+          ]
+        }
+      ]
+    }
+  }
+}

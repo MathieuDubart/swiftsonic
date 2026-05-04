@@ -1,10 +1,14 @@
 // Lyrics.swift — SwiftSonic
 //
-// Data model for song lyrics returned by the getLyrics endpoint.
+// Data models for song lyrics.
+//
+// Lyrics      — plain-text lyrics returned by the legacy getLyrics endpoint.
+// LyricsList  — structured (optionally time-synced) lyrics returned by the
+//               OpenSubsonic getLyricsBySongId endpoint (songLyrics extension).
 
 import Foundation
 
-// MARK: - Lyrics
+// MARK: - Lyrics (legacy)
 
 /// Song lyrics returned by ``SwiftSonicClient/getLyrics(artist:title:)``.
 ///
@@ -24,4 +28,108 @@ public struct Lyrics: Decodable, Sendable {
     /// ``SwiftSonicClient/getLyrics(artist:title:)`` — the method returns `nil`
     /// when the server responds with an absent or empty value.
     public let value: String?
+}
+
+// MARK: - LyricsList (OpenSubsonic songLyrics extension)
+
+/// A collection of structured lyrics sets for a single song.
+///
+/// Returned by ``SwiftSonicClient/getLyricsBySongId(id:)``.
+/// May contain multiple entries for different languages or lyric types.
+///
+/// To check server support before calling:
+/// ```swift
+/// let caps = try await client.loadCapabilities()
+/// if caps.supports(.songLyrics) {
+///     let list = try await client.getLyricsBySongId(id: song.id)
+/// }
+/// ```
+public struct LyricsList: Decodable, Sendable {
+
+    /// All structured lyrics sets for this song.
+    ///
+    /// May be empty if the server has no lyrics for the track.
+    public let structuredLyrics: [StructuredLyrics]
+
+    public init(structuredLyrics: [StructuredLyrics] = []) {
+        self.structuredLyrics = structuredLyrics
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case structuredLyrics
+    }
+
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        structuredLyrics = try container.decodeIfPresent([StructuredLyrics].self, forKey: .structuredLyrics) ?? []
+    }
+}
+
+// MARK: - StructuredLyrics
+
+/// A single set of lyrics for a song, with optional per-line timing.
+///
+/// `synced` indicates whether ``line`` entries carry ``Line/start`` timestamps.
+/// For synced lyrics, lines are ordered by their `start` time;
+/// for unsynced lyrics, lines appear in reading order.
+public struct StructuredLyrics: Decodable, Sendable {
+
+    /// The language of the lyrics (ideally ISO 639).
+    ///
+    /// If the language is unknown, the server returns `"und"` or `"xxx"`.
+    public let lang: String
+
+    /// `true` if lines carry timing information (``Line/start`` is present).
+    public let synced: Bool
+
+    /// The lyric lines, in order.
+    public let line: [Line]
+
+    /// Artist name for display purposes.
+    public let displayArtist: String?
+
+    /// Song title for display purposes.
+    public let displayTitle: String?
+
+    /// Offset in milliseconds to apply to all line start times.
+    ///
+    /// Positive values shift lyrics earlier; negative values shift them later.
+    /// Treat absent values as `0`.
+    public let offset: Int?
+
+    public init(
+        lang: String,
+        synced: Bool,
+        line: [Line] = [],
+        displayArtist: String? = nil,
+        displayTitle: String? = nil,
+        offset: Int? = nil
+    ) {
+        self.lang          = lang
+        self.synced        = synced
+        self.line          = line
+        self.displayArtist = displayArtist
+        self.displayTitle  = displayTitle
+        self.offset        = offset
+    }
+}
+
+// MARK: - Line
+
+/// A single lyric line, with optional synchronisation timestamp.
+public struct Line: Decodable, Sendable {
+
+    /// The text of the lyric line.
+    public let value: String
+
+    /// Start time of this line in milliseconds from the beginning of the track.
+    ///
+    /// Present only for synced lyrics (``StructuredLyrics/synced`` is `true`).
+    /// Absent for unsynced lyrics — do not treat absence as `0`.
+    public let start: Int?
+
+    public init(value: String, start: Int? = nil) {
+        self.value = value
+        self.start = start
+    }
 }

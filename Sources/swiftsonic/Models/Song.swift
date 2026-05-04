@@ -101,7 +101,10 @@ public struct Song: Codable, Sendable, Identifiable, Equatable, Hashable {
     /// The artist ID.
     public let artistId: String?
 
-    /// Media type (e.g. `"music"`, `"podcast"`, `"audiobook"`, `"video"`).
+    /// Generic media category (legacy Subsonic field).
+    ///
+    /// Values: `"music"`, `"podcast"`, `"audiobook"`, `"video"`.
+    /// See also ``mediaType`` (OpenSubsonic) for a more granular classification.
     public let type: String?
 
     // MARK: OpenSubsonic fields
@@ -139,6 +142,9 @@ public struct Song: Codable, Sendable, Identifiable, Equatable, Hashable {
     /// Detailed contributor credits (OpenSubsonic).
     public let contributors: [Contributor]?
 
+    /// Composer display string (OpenSubsonic).
+    public let displayComposer: String?
+
     /// Replay gain data for volume normalisation (OpenSubsonic).
     public let replayGain: ReplayGain?
 
@@ -161,6 +167,12 @@ public struct Song: Codable, Sendable, Identifiable, Equatable, Hashable {
     ///
     /// Values: `"notExplicit"`, `"explicit"`, `"edited"`.
     public let explicitStatus: String?
+
+    /// Actual media type for this item (OpenSubsonic).
+    ///
+    /// Distinct from ``type`` (legacy Subsonic field).
+    /// Values: `"song"`, `"album"`, `"artist"`.
+    public let mediaType: String?
 
     public init(
         id: String,
@@ -202,60 +214,64 @@ public struct Song: Codable, Sendable, Identifiable, Equatable, Hashable {
         albumArtists: [ArtistID3]? = nil,
         displayAlbumArtist: String? = nil,
         contributors: [Contributor]? = nil,
+        displayComposer: String? = nil,
         replayGain: ReplayGain? = nil,
         bitDepth: Int? = nil,
         samplingRate: Int? = nil,
         channelCount: Int? = nil,
         moods: [String]? = nil,
         isrc: [String]? = nil,
-        explicitStatus: String? = nil
+        explicitStatus: String? = nil,
+        mediaType: String? = nil
     ) {
-        self.id                   = id
-        self.title                = title
-        self.parent               = parent
-        self.isDir                = isDir
-        self.album                = album
-        self.artist               = artist
-        self.track                = track
-        self.year                 = year
-        self.genre                = genre
-        self.coverArt             = coverArt
-        self.size                 = size
-        self.contentType          = contentType
-        self.suffix               = suffix
+        self.id                    = id
+        self.title                 = title
+        self.parent                = parent
+        self.isDir                 = isDir
+        self.album                 = album
+        self.artist                = artist
+        self.track                 = track
+        self.year                  = year
+        self.genre                 = genre
+        self.coverArt              = coverArt
+        self.size                  = size
+        self.contentType           = contentType
+        self.suffix                = suffix
         self.transcodedContentType = transcodedContentType
-        self.transcodedSuffix     = transcodedSuffix
-        self.duration             = duration
-        self.bitRate              = bitRate
-        self.path                 = path
-        self.isVideo              = isVideo
-        self.userRating           = userRating
-        self.averageRating        = averageRating
-        self.playCount            = playCount
-        self.discNumber           = discNumber
-        self.created              = created
-        self.starred              = starred
-        self.albumId              = albumId
-        self.artistId             = artistId
-        self.type                 = type
-        self.played               = played
-        self.bpm                  = bpm
-        self.comment              = comment
-        self.sortName             = sortName
-        self.musicBrainzId        = musicBrainzId
-        self.genres               = genres
-        self.artists              = artists
-        self.displayArtist        = displayArtist
-        self.albumArtists         = albumArtists
-        self.displayAlbumArtist   = displayAlbumArtist
-        self.contributors         = contributors
-        self.replayGain           = replayGain
-        self.bitDepth             = bitDepth
-        self.samplingRate         = samplingRate
-        self.channelCount         = channelCount
-        self.moods                = moods
-        self.isrc                 = isrc
-        self.explicitStatus       = explicitStatus
+        self.transcodedSuffix      = transcodedSuffix
+        self.duration              = duration
+        self.bitRate               = bitRate
+        self.path                  = path
+        self.isVideo               = isVideo
+        self.userRating            = userRating
+        self.averageRating         = averageRating
+        self.playCount             = playCount
+        self.discNumber            = discNumber
+        self.created               = created
+        self.starred               = starred
+        self.albumId               = albumId
+        self.artistId              = artistId
+        self.type                  = type
+        self.played                = played
+        self.bpm                   = bpm
+        self.comment               = comment
+        self.sortName              = sortName
+        self.musicBrainzId         = musicBrainzId
+        self.genres                = genres
+        self.artists               = artists
+        self.displayArtist         = displayArtist
+        self.albumArtists          = albumArtists
+        self.displayAlbumArtist    = displayAlbumArtist
+        self.contributors          = contributors
+        self.displayComposer       = displayComposer
+        self.replayGain            = replayGain
+        self.bitDepth              = bitDepth
+        self.samplingRate          = samplingRate
+        self.channelCount          = channelCount
+        self.moods                 = moods
+        self.isrc                  = isrc
+        self.explicitStatus        = explicitStatus
+        self.mediaType             = mediaType
     }
 
     public static func == (lhs: Song, rhs: Song) -> Bool { lhs.id == rhs.id }

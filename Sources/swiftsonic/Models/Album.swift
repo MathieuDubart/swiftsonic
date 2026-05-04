@@ -94,6 +94,16 @@ public struct AlbumID3: Codable, Sendable, Identifiable, Equatable, Hashable {
     /// Record labels (OpenSubsonic).
     public let recordLabels: [RecordLabel]?
 
+    /// Explicit content status (OpenSubsonic).
+    ///
+    /// Values: `"notExplicit"`, `"explicit"`, `"edited"`.
+    public let explicitStatus: String?
+
+    /// Edition descriptor (OpenSubsonic).
+    ///
+    /// Examples: `"Deluxe Edition"`, `"Remastered"`, `"Anniversary Edition"`.
+    public let version: String?
+
     /// The songs on this album. Only populated by ``SwiftSonicClient/getAlbum(id:)``.
     public let song: [Song]?
 
@@ -124,6 +134,8 @@ public struct AlbumID3: Codable, Sendable, Identifiable, Equatable, Hashable {
         isCompilation: Bool? = nil,
         discTitles: [DiscTitle]? = nil,
         recordLabels: [RecordLabel]? = nil,
+        explicitStatus: String? = nil,
+        version: String? = nil,
         song: [Song]? = nil
     ) {
         self.id                  = id
@@ -152,6 +164,8 @@ public struct AlbumID3: Codable, Sendable, Identifiable, Equatable, Hashable {
         self.isCompilation       = isCompilation
         self.discTitles          = discTitles
         self.recordLabels        = recordLabels
+        self.explicitStatus      = explicitStatus
+        self.version             = version
         self.song                = song
     }
 
