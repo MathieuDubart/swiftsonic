@@ -98,16 +98,20 @@ let client = SwiftSonicClient(
 ### Checking server capabilities
 
 ```swift
-try await client.fetchCapabilities()
+// Lazy — fetches once, caches for all subsequent calls
+let caps = try await client.loadCapabilities()
+print("Server: \(caps.serverType ?? "unknown") \(caps.serverVersion ?? "")")
+print("OpenSubsonic: \(caps.isOpenSubsonic)")
 
-if let caps = client.serverCapabilities {
-    print("Server: \(caps.serverType ?? "unknown") \(caps.serverVersion ?? "")")
-    print("OpenSubsonic: \(caps.isOpenSubsonic)")
+// String overload
+if caps.supports("songLyrics") { … }
 
-    if caps.supports("songLyrics") {
-        // call OpenSubsonic-specific endpoints
-    }
-}
+// Typed KnownExtension overload (compile-time safe)
+if caps.supports(.songLyrics) { … }
+if caps.supports(.apiKeyAuthentication) { … }
+
+// Force a fresh fetch (e.g. after re-auth)
+let refreshed = try await client.refreshCapabilities()
 ```
 
 ### Browsing
@@ -306,7 +310,7 @@ let client = SwiftSonicClient(
 |---|---|
 | `ping` | `ping()` |
 | `getLicense` | `getLicense()` |
-| `getOpenSubsonicExtensions` | `getOpenSubsonicExtensions()` / `fetchCapabilities()` |
+| `getOpenSubsonicExtensions` | `getOpenSubsonicExtensions()` / `fetchCapabilities()` / `loadCapabilities()` / `refreshCapabilities()` |
 
 ### Browsing (ID3)
 | Endpoint | Swift API |
@@ -393,9 +397,30 @@ let client = SwiftSonicClient(
 | `addChatMessage` | `addChatMessage(_:)` |
 
 ### Lyrics
-| Endpoint | Swift API |
-|---|---|
-| `getLyrics` | `getLyrics(artist:title:)` |
+| Endpoint | Swift API | Notes |
+|---|---|---|
+| `getLyrics` | `getLyrics(artist:title:)` | Legacy Subsonic |
+| `getLyricsBySongId` | `getLyricsBySongId(id:)` | OpenSubsonic `songLyrics` extension |
+
+```swift
+// Legacy plain-text lyrics
+if let lyrics = try await client.getLyrics(artist: "Nine Inch Nails", title: "Hurt") {
+    print(lyrics.value ?? "")
+}
+
+// OpenSubsonic structured lyrics (synced + multi-language)
+let list = try await client.getLyricsBySongId(id: song.id)
+for set in list.structuredLyrics {
+    print("\(set.lang) synced=\(set.synced)")
+    for line in set.line {
+        if let ms = line.start {
+            print("[\(ms)ms] \(line.value)")
+        } else {
+            print(line.value)
+        }
+    }
+}
+```
 
 ### User management
 | Endpoint | Swift API |

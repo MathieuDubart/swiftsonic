@@ -7,6 +7,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.7.0] — 2026-05-04
+
+### Added
+
+- **OpenSubsonic server identification** — `ServerCapabilities` now exposes `serverType` and `serverVersion` populated from the `type` / `serverVersion` fields returned by OpenSubsonic-compliant servers (Navidrome, gonic, …).
+
+- **`KnownExtension` enum** — compile-time–safe identifiers for every OpenSubsonic extension defined in the spec (`songLyrics`, `apiKeyAuthentication`, `playbackReport`, `transcodeOffset`, `formPost`, `indexBasedQueue`, `sonicSimilarity`, `transcoding`, `getPodcastEpisode`). Use `caps.supports(.songLyrics)` instead of the stringly-typed overload.
+
+- **`ServerCapabilities.extensionList`** — computed property that derives a `[OpenSubsonicExtension]` array from the extensions dictionary, matching the shape returned by `getOpenSubsonicExtensions()`.
+
+- **`ServerCapabilities.legacy()`** — factory that creates a non-OpenSubsonic capability snapshot with empty extensions, useful as a safe default when `fetchCapabilities()` has not been called.
+
+- **`ServerCapabilities` public init** — all five fields are now constructible from outside the module, enabling consumer-side mocking and testing.
+
+- **`loadCapabilities()`** — lazy capability accessor on `SwiftSonicClient`. Fetches from the server on first call; returns the cached value on all subsequent calls. `@discardableResult`.
+
+- **`refreshCapabilities()`** — forces a new `fetchCapabilities()` pass and updates the cached `serverCapabilities` property. Use after re-authentication or when you suspect the server configuration has changed. `@discardableResult`.
+
+- **`getLyricsBySongId(id:)`** — implements the OpenSubsonic `songLyrics` extension. Returns a `LyricsList` containing an array of `StructuredLyrics` sets, each with a language code, sync flag, optional display metadata, and an array of `Line` values (with optional millisecond `start` timestamps for synced lyrics).
+
+- **New model types** (`Lyrics.swift`):
+  - `LyricsList` — top-level container; `structuredLyrics` defaults to `[]` when absent from the response.
+  - `StructuredLyrics` — one language set; fields `lang`, `synced`, `line`, `displayArtist`, `displayTitle`, `offset`.
+  - `Line` — a single lyric line; `value` (String) + optional `start` (Int, milliseconds).
+
+- **`OpenSubsonicExtension` public init** — `init(name:versions:)` is now public.
+
+- **Public inits for all `SharedModels` types** — `ItemGenre`, `ReplayGain`, `ItemDate`, `DiscTitle`, `RecordLabel`, `ContributorArtist`, and `Contributor` all gain public memberwise initialisers with `nil` defaults on optional fields.
+
+- **OpenSubsonic fields on `Song`** — `mediaType: String?` and `displayComposer: String?` added to `Song` and its public init (both default to `nil`).
+
+- **OpenSubsonic fields on `AlbumID3`** — `explicitStatus: String?` and `version: String?` added to `AlbumID3` and its public init (both default to `nil`).
+
+- **Test count** — test suite grows from 296 to ~370 tests across new suites covering capabilities caching, `KnownExtension`, `getLyricsBySongId` decoding (synced, unsynced, multi-language, empty), and all new public inits.
+
+### Notes
+
+All changes are additive; no breaking changes from v0.6.x. The new `loadCapabilities()` / `refreshCapabilities()` methods complement the existing `fetchCapabilities()` + `serverCapabilities` property pair — choose whichever pattern suits your architecture.
+
+---
+
 ## [0.6.1] — 2026-04-27
 
 ### Added
