@@ -181,6 +181,10 @@ public actor SwiftSonicClient {
     ///
     /// This method is idempotent: calling it again refreshes the cached value.
     ///
+    /// If `ping` succeeds but `getOpenSubsonicExtensions` returns an error (e.g. the
+    /// server claims OpenSubsonic but hasn't implemented the endpoint), capabilities
+    /// are stored with an empty extension map rather than throwing.
+    ///
     /// ```swift
     /// try await client.fetchCapabilities()
     /// if client.serverCapabilities?.supports("songLyrics") == true {
@@ -191,15 +195,20 @@ public actor SwiftSonicClient {
         // ping gives us the base envelope fields (version, type, openSubsonic flag)
         let pingEnvelope = try await performRaw(endpoint: "ping", params: [:])
 
-        // getOpenSubsonicExtensions gives us the extensions map
-        // This endpoint is publicly accessible (no auth required by spec),
-        // but we include auth anyway for consistency.
+        // getOpenSubsonicExtensions gives us the extensions map.
+        // If the endpoint is unavailable or returns an error (e.g. a server that
+        // sets openSubsonic=true but hasn't implemented the endpoint), we proceed
+        // with an empty map rather than throwing.
         var extensionMap: [String: [Int]] = [:]
         if pingEnvelope.isOpenSubsonic == true {
-            let extEnvelope: SubsonicEnvelope<OpenSubsonicExtensionsPayload> =
-                try await performDecode(endpoint: "getOpenSubsonicExtensions", params: [:])
-            let list = extEnvelope.payload?.openSubsonicExtensions ?? []
-            extensionMap = Dictionary(uniqueKeysWithValues: list.map { ($0.name, $0.versions) })
+            do {
+                let extEnvelope: SubsonicEnvelope<OpenSubsonicExtensionsPayload> =
+                    try await performDecode(endpoint: "getOpenSubsonicExtensions", params: [:])
+                let list = extEnvelope.payload?.openSubsonicExtensions ?? []
+                extensionMap = Dictionary(uniqueKeysWithValues: list.map { ($0.name, $0.versions) })
+            } catch {
+                logger.warning("getOpenSubsonicExtensions unavailable — extension list will be empty (\(String(describing: error), privacy: .public))")
+            }
         }
 
         serverCapabilities = ServerCapabilities(
@@ -211,6 +220,36 @@ public actor SwiftSonicClient {
         )
 
         logger.debug("Capabilities loaded: version=\(pingEnvelope.version) openSubsonic=\(pingEnvelope.isOpenSubsonic ?? false)")
+    }
+
+    /// Returns cached capabilities, fetching them on first call.
+    ///
+    /// Subsequent calls return the in-memory cached value without making any
+    /// network requests. Use ``refreshCapabilities()`` to force a refetch.
+    ///
+    /// ```swift
+    /// let caps = try await client.loadCapabilities()
+    /// if caps.supports(.songLyrics) {
+    ///     let lyrics = try await client.getLyricsBySongId(id: song.id)
+    /// }
+    /// ```
+    @discardableResult
+    public func loadCapabilities() async throws -> ServerCapabilities {
+        if let cached = serverCapabilities { return cached }
+        try await fetchCapabilities()
+        return serverCapabilities ?? .legacy()
+    }
+
+    /// Forces a fresh fetch of the server's capabilities, bypassing the cache.
+    ///
+    /// Use this after a server upgrade or when you suspect the cached value is stale.
+    /// The refreshed value is also stored in ``serverCapabilities``.
+    ///
+    /// - Returns: The newly fetched ``ServerCapabilities``.
+    @discardableResult
+    public func refreshCapabilities() async throws -> ServerCapabilities {
+        try await fetchCapabilities()
+        return serverCapabilities ?? .legacy()
     }
 
     // MARK: - Internal helpers
