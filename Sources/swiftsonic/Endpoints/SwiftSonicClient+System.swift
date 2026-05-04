@@ -94,6 +94,11 @@ public struct OpenSubsonicExtension: Codable, Sendable {
 
     /// The versions of this extension the server supports (e.g. `[1, 2]`).
     public let versions: [Int]
+
+    public init(name: String, versions: [Int]) {
+        self.name     = name
+        self.versions = versions
+    }
 }
 
 struct OpenSubsonicExtensionsPayload: SubsonicPayload {
