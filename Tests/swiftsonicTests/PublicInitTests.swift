@@ -303,8 +303,8 @@ struct SongV07FieldsTests {
     func newFields() {
         let s = Song(
             id: "200", title: "Hurt",
-            mediaType: "song",
-            displayComposer: "Trent Reznor"
+            displayComposer: "Trent Reznor",
+            mediaType: "song"
         )
         #expect(s.mediaType == "song")
         #expect(s.displayComposer == "Trent Reznor")
