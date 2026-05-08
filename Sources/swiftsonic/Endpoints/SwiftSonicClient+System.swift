@@ -88,7 +88,7 @@ struct LicensePayload: SubsonicPayload {
 }
 
 /// A single OpenSubsonic extension entry.
-public struct OpenSubsonicExtension: Codable, Sendable {
+public struct OpenSubsonicExtension: Codable, Sendable, Equatable, Hashable {
     /// The extension name (e.g. `"songLyrics"`, `"apiKeyAuthentication"`).
     public let name: String
 

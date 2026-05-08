@@ -44,7 +44,7 @@ public struct Lyrics: Decodable, Sendable {
 ///     let list = try await client.getLyricsBySongId(id: song.id)
 /// }
 /// ```
-public struct LyricsList: Decodable, Sendable {
+public struct LyricsList: Decodable, Sendable, Equatable, Hashable {
 
     /// All structured lyrics sets for this song.
     ///
@@ -72,7 +72,7 @@ public struct LyricsList: Decodable, Sendable {
 /// `synced` indicates whether ``line`` entries carry ``Line/start`` timestamps.
 /// For synced lyrics, lines are ordered by their `start` time;
 /// for unsynced lyrics, lines appear in reading order.
-public struct StructuredLyrics: Decodable, Sendable {
+public struct StructuredLyrics: Decodable, Sendable, Equatable, Hashable {
 
     /// The language of the lyrics (ideally ISO 639).
     ///
@@ -117,7 +117,7 @@ public struct StructuredLyrics: Decodable, Sendable {
 // MARK: - Line
 
 /// A single lyric line, with optional synchronisation timestamp.
-public struct Line: Decodable, Sendable {
+public struct Line: Decodable, Sendable, Equatable, Hashable {
 
     /// The text of the lyric line.
     public let value: String

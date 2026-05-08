@@ -1,7 +1,8 @@
 // HashableTests.swift — SwiftSonicTests
 //
-// Tests for Equatable and Hashable conformances on identifiable models.
-// Equality and hashing are both keyed on `id`.
+// Tests for Equatable and Hashable conformances.
+// Identifiable models (ArtistID3, AlbumID3, Song, Playlist) key equality on `id`.
+// Value models (Line, StructuredLyrics, LyricsList, OpenSubsonicExtension) use full structural equality.
 
 import Testing
 import Foundation
@@ -251,5 +252,154 @@ struct PlaylistWithSongsHashableTests {
         dict[p2] = "second"
         #expect(dict.count == 1)
         #expect(dict[p1] == "second")
+    }
+}
+
+// MARK: - Line (structural equality)
+
+@Suite("Line Equatable")
+struct LineEquatableTests {
+
+    @Test("equal when value and start match")
+    func equalWhenAllFieldsMatch() {
+        let l1 = Line(value: "I hurt myself today", start: 1000)
+        let l2 = Line(value: "I hurt myself today", start: 1000)
+        #expect(l1 == l2)
+        #expect(l1.hashValue == l2.hashValue)
+    }
+
+    @Test("not equal when value differs")
+    func notEqualWhenValueDiffers() {
+        let l1 = Line(value: "I hurt myself today", start: 1000)
+        let l2 = Line(value: "To see if I still feel", start: 1000)
+        #expect(l1 != l2)
+    }
+
+    @Test("not equal when start differs")
+    func notEqualWhenStartDiffers() {
+        let l1 = Line(value: "I hurt myself today", start: 1000)
+        let l2 = Line(value: "I hurt myself today", start: 2000)
+        #expect(l1 != l2)
+    }
+
+    @Test("usable in Set")
+    func usableInSet() {
+        let l1 = Line(value: "Hello", start: 0)
+        let l2 = Line(value: "Hello", start: 0)
+        let l3 = Line(value: "World", start: nil)
+        let set = Set([l1, l2, l3])
+        #expect(set.count == 2)
+        #expect(set.contains(l1))
+    }
+}
+
+// MARK: - StructuredLyrics (structural equality)
+
+@Suite("StructuredLyrics Equatable")
+struct StructuredLyricsEquatableTests {
+
+    @Test("equal when all fields match")
+    func equalWhenAllFieldsMatch() {
+        let s1 = StructuredLyrics(lang: "en", synced: true, line: [Line(value: "Hello", start: 0)])
+        let s2 = StructuredLyrics(lang: "en", synced: true, line: [Line(value: "Hello", start: 0)])
+        #expect(s1 == s2)
+        #expect(s1.hashValue == s2.hashValue)
+    }
+
+    @Test("not equal when lang differs")
+    func notEqualWhenLangDiffers() {
+        let s1 = StructuredLyrics(lang: "en", synced: false)
+        let s2 = StructuredLyrics(lang: "fr", synced: false)
+        #expect(s1 != s2)
+    }
+
+    @Test("not equal when synced differs")
+    func notEqualWhenSyncedDiffers() {
+        let s1 = StructuredLyrics(lang: "en", synced: true)
+        let s2 = StructuredLyrics(lang: "en", synced: false)
+        #expect(s1 != s2)
+    }
+
+    @Test("usable in Set")
+    func usableInSet() {
+        let s1 = StructuredLyrics(lang: "en", synced: true)
+        let s2 = StructuredLyrics(lang: "en", synced: true)
+        let s3 = StructuredLyrics(lang: "fr", synced: false)
+        let set = Set([s1, s2, s3])
+        #expect(set.count == 2)
+        #expect(set.contains(s1))
+    }
+}
+
+// MARK: - LyricsList (structural equality)
+
+@Suite("LyricsList Equatable")
+struct LyricsListEquatableTests {
+
+    @Test("equal when structuredLyrics arrays match")
+    func equalWhenContentsMatch() {
+        let l1 = LyricsList(structuredLyrics: [StructuredLyrics(lang: "en", synced: false)])
+        let l2 = LyricsList(structuredLyrics: [StructuredLyrics(lang: "en", synced: false)])
+        #expect(l1 == l2)
+        #expect(l1.hashValue == l2.hashValue)
+    }
+
+    @Test("not equal when contents differ")
+    func notEqualWhenContentsDiffer() {
+        let l1 = LyricsList(structuredLyrics: [StructuredLyrics(lang: "en", synced: false)])
+        let l2 = LyricsList(structuredLyrics: [StructuredLyrics(lang: "fr", synced: false)])
+        #expect(l1 != l2)
+    }
+
+    @Test("empty lists are equal")
+    func emptyListsAreEqual() {
+        #expect(LyricsList() == LyricsList())
+    }
+
+    @Test("usable in Set")
+    func usableInSet() {
+        let l1 = LyricsList(structuredLyrics: [StructuredLyrics(lang: "en", synced: true)])
+        let l2 = LyricsList(structuredLyrics: [StructuredLyrics(lang: "en", synced: true)])
+        let l3 = LyricsList()
+        let set = Set([l1, l2, l3])
+        #expect(set.count == 2)
+    }
+}
+
+// MARK: - OpenSubsonicExtension (structural equality)
+
+@Suite("OpenSubsonicExtension Equatable")
+struct OpenSubsonicExtensionEquatableTests {
+
+    @Test("equal when name and versions match")
+    func equalWhenAllFieldsMatch() {
+        let e1 = OpenSubsonicExtension(name: "songLyrics", versions: [1])
+        let e2 = OpenSubsonicExtension(name: "songLyrics", versions: [1])
+        #expect(e1 == e2)
+        #expect(e1.hashValue == e2.hashValue)
+    }
+
+    @Test("not equal when name differs")
+    func notEqualWhenNameDiffers() {
+        let e1 = OpenSubsonicExtension(name: "songLyrics", versions: [1])
+        let e2 = OpenSubsonicExtension(name: "apiKeyAuthentication", versions: [1])
+        #expect(e1 != e2)
+    }
+
+    @Test("not equal when versions differ")
+    func notEqualWhenVersionsDiffer() {
+        let e1 = OpenSubsonicExtension(name: "songLyrics", versions: [1])
+        let e2 = OpenSubsonicExtension(name: "songLyrics", versions: [1, 2])
+        #expect(e1 != e2)
+    }
+
+    @Test("usable in Set")
+    func usableInSet() {
+        let e1 = OpenSubsonicExtension(name: "songLyrics", versions: [1])
+        let e2 = OpenSubsonicExtension(name: "songLyrics", versions: [1])
+        let e3 = OpenSubsonicExtension(name: "formPost", versions: [1])
+        let set = Set([e1, e2, e3])
+        #expect(set.count == 2)
+        #expect(set.contains(e1))
     }
 }
