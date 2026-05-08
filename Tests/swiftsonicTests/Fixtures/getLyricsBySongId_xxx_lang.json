@@ -1,0 +1,20 @@
+{
+  "subsonic-response": {
+    "status": "ok",
+    "version": "1.16.1",
+    "openSubsonic": true,
+    "lyricsList": {
+      "structuredLyrics": [
+        {
+          "lang": "xxx",
+          "offset": 0,
+          "synced": false,
+          "line": [
+            { "value": "Some text" },
+            { "value": "Another line" }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -188,4 +188,35 @@ struct GetLyricsBySongIdTests {
 
         #expect(mock.queryItem(named: "id") == "track-42")
     }
+
+    @Test("getLyricsBySongId applies defaults when optional fields are absent")
+    func decodesDefaults() async throws {
+        let mock = MockHTTPTransport()
+        mock.enqueue(fixture: "getLyricsBySongId_defaults")
+
+        let client = SwiftSonicClient(configuration: .test, transport: mock)
+        let list = try await client.getLyricsBySongId(id: "song-5")
+
+        let set = try #require(list.structuredLyrics.first)
+        #expect(set.lang == nil)
+        #expect(set.synced == false)
+        #expect(set.offset == 0)
+        #expect(set.displayArtist == nil)
+        #expect(set.displayTitle == nil)
+        #expect(set.line.count == 1)
+        #expect(set.line[0].value == "Just a line, no metadata")
+        #expect(set.line[0].start == nil)
+    }
+
+    @Test("getLyricsBySongId preserves lang value xxx without transformation")
+    func preservesXxxLang() async throws {
+        let mock = MockHTTPTransport()
+        mock.enqueue(fixture: "getLyricsBySongId_xxx_lang")
+
+        let client = SwiftSonicClient(configuration: .test, transport: mock)
+        let list = try await client.getLyricsBySongId(id: "song-6")
+
+        let set = try #require(list.structuredLyrics.first)
+        #expect(set.lang == "xxx")
+    }
 }
