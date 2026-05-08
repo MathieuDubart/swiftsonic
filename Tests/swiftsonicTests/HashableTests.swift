@@ -403,3 +403,80 @@ struct OpenSubsonicExtensionEquatableTests {
         #expect(set.contains(e1))
     }
 }
+
+// MARK: - SharedModels (structural equality)
+
+@Suite("SharedModels Equatable")
+struct SharedModelsEquatableTests {
+
+    @Test("ItemGenre: equal when name matches")
+    func itemGenre() {
+        let g1 = ItemGenre(name: "Rock")
+        let g2 = ItemGenre(name: "Rock")
+        let g3 = ItemGenre(name: "Jazz")
+        #expect(g1 == g2)
+        #expect(g1 != g3)
+        #expect(Set([g1, g2, g3]).count == 2)
+    }
+
+    @Test("ReplayGain: equal when all fields match")
+    func replayGain() {
+        let r1 = ReplayGain(trackGain: -3.5, albumGain: -2.0)
+        let r2 = ReplayGain(trackGain: -3.5, albumGain: -2.0)
+        let r3 = ReplayGain(trackGain: 0.0)
+        #expect(r1 == r2)
+        #expect(r1 != r3)
+        #expect(Set([r1, r2, r3]).count == 2)
+    }
+
+    @Test("ItemDate: equal when all fields match")
+    func itemDate() {
+        let d1 = ItemDate(year: 1997, month: 5, day: 21)
+        let d2 = ItemDate(year: 1997, month: 5, day: 21)
+        let d3 = ItemDate(year: 2000)
+        #expect(d1 == d2)
+        #expect(d1 != d3)
+        #expect(Set([d1, d2, d3]).count == 2)
+    }
+
+    @Test("DiscTitle: equal when disc and title match")
+    func discTitle() {
+        let t1 = DiscTitle(disc: 1, title: "Side A")
+        let t2 = DiscTitle(disc: 1, title: "Side A")
+        let t3 = DiscTitle(disc: 2, title: "Side B")
+        #expect(t1 == t2)
+        #expect(t1 != t3)
+        #expect(Set([t1, t2, t3]).count == 2)
+    }
+
+    @Test("RecordLabel: equal when name matches")
+    func recordLabel() {
+        let l1 = RecordLabel(name: "XL Recordings")
+        let l2 = RecordLabel(name: "XL Recordings")
+        let l3 = RecordLabel(name: "Interscope")
+        #expect(l1 == l2)
+        #expect(l1 != l3)
+        #expect(Set([l1, l2, l3]).count == 2)
+    }
+
+    @Test("ContributorArtist: equal when all fields match")
+    func contributorArtist() {
+        let a1 = ContributorArtist(id: "1", name: "Trent Reznor")
+        let a2 = ContributorArtist(id: "1", name: "Trent Reznor")
+        let a3 = ContributorArtist(id: "2", name: "Atticus Ross")
+        #expect(a1 == a2)
+        #expect(a1 != a3)
+        #expect(Set([a1, a2, a3]).count == 2)
+    }
+
+    @Test("Contributor: equal when role and artist match")
+    func contributor() {
+        let artist = ContributorArtist(id: "1", name: "Trent Reznor")
+        let c1 = Contributor(role: "composer", artist: artist)
+        let c2 = Contributor(role: "composer", artist: artist)
+        let c3 = Contributor(role: "producer", artist: artist)
+        #expect(c1 == c2)
+        #expect(c1 != c3)
+        #expect(Set([c1, c2, c3]).count == 2)
+    }
+}

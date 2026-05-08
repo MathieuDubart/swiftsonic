@@ -10,7 +10,7 @@ import Foundation
 /// A genre tag on an album or song (OpenSubsonic).
 ///
 /// Distinct from ``Genre`` (which is returned by `getGenres` and includes counts).
-public struct ItemGenre: Codable, Sendable, Equatable {
+public struct ItemGenre: Codable, Sendable, Equatable, Hashable {
     /// The genre name (e.g. `"Rock"`, `"Jazz"`).
     public let name: String
 
@@ -22,7 +22,7 @@ public struct ItemGenre: Codable, Sendable, Equatable {
 // MARK: - ReplayGain
 
 /// Replay gain information for volume normalisation (OpenSubsonic).
-public struct ReplayGain: Codable, Sendable {
+public struct ReplayGain: Codable, Sendable, Equatable, Hashable {
     /// Track-level gain in dB.
     public let trackGain: Double?
     /// Album-level gain in dB.
@@ -58,7 +58,7 @@ public struct ReplayGain: Codable, Sendable {
 /// A partial date with optional month and day (OpenSubsonic).
 ///
 /// Used for `releaseDate` and `originalReleaseDate` on albums.
-public struct ItemDate: Codable, Sendable {
+public struct ItemDate: Codable, Sendable, Equatable, Hashable {
     /// The four-digit year.
     public let year: Int?
     /// The month (1–12).
@@ -76,7 +76,7 @@ public struct ItemDate: Codable, Sendable {
 // MARK: - DiscTitle
 
 /// A per-disc title for multi-disc albums (OpenSubsonic).
-public struct DiscTitle: Codable, Sendable {
+public struct DiscTitle: Codable, Sendable, Equatable, Hashable {
     /// The disc number (1-based).
     public let disc: Int
     /// The disc's title.
@@ -91,7 +91,7 @@ public struct DiscTitle: Codable, Sendable {
 // MARK: - RecordLabel
 
 /// A record label associated with an album (OpenSubsonic).
-public struct RecordLabel: Codable, Sendable {
+public struct RecordLabel: Codable, Sendable, Equatable, Hashable {
     /// The label name.
     public let name: String
 
@@ -105,7 +105,7 @@ public struct RecordLabel: Codable, Sendable {
 /// An artist contributor with a specific role (OpenSubsonic).
 ///
 /// Used in `Song.contributors` to represent composers, producers, etc.
-public struct Contributor: Codable, Sendable {
+public struct Contributor: Codable, Sendable, Equatable, Hashable {
     /// The role (e.g. `"composer"`, `"producer"`, `"lyricist"`).
     public let role: String
     /// An optional sub-role for finer-grained credits.
@@ -125,7 +125,7 @@ public struct Contributor: Codable, Sendable {
 /// This is a lean subset of `ArtistID3` — only the fields reliably returned by
 /// servers for contributor credits are included. Full `ArtistID3` conformance
 /// may be considered in a future major version.
-public struct ContributorArtist: Codable, Sendable {
+public struct ContributorArtist: Codable, Sendable, Equatable, Hashable {
     public let id: String
     public let name: String
     public let musicBrainzId: String?
