@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.8.0] — 2026-05-13
+
+### Added
+
+- **`NavidromePlaylistCoverUploading` protocol** — Navidrome-native REST API seam for uploading playlist cover images. Entirely separate from the Subsonic/OpenSubsonic layer; requires JWT authentication via Navidrome's `/auth/login` endpoint.
+
+- **`NavidromeNativeAPI` struct** — Concrete `Sendable` implementation of `NavidromePlaylistCoverUploading`. Uses the existing `HTTPTransport` seam (zero new dependencies). Provides `authenticate(baseURL:username:password:)` and `uploadPlaylistCover(baseURL:token:playlistId:imageData:mimeType:)`.
+
+- **`NavidromeNativeAPIError` enum** — Typed, credential-safe errors: `.authenticationFailed`, `.uploadFailed(statusCode:)`, `.networkError(underlying:)`, `.invalidResponse`. All `localizedDescription` strings redact credentials.
+
+---
+
 ## [0.7.0] — 2026-05-04
 
 ### Added
