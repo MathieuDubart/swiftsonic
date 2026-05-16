@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.8.1] — 2026-05-16
+
+### Fixed
+
+- **`NavidromeNativeAPI` — wrong JWT authentication header** — `uploadPlaylistCover` was sending `Authorization: Bearer <jwt>`. Navidrome's native `/api/` endpoints require `x-nd-authorization: Bearer <jwt>`; using the standard header results in a silent 401.
+
+- **`NavidromeNativeAPI` — wrong multipart field name** — the cover image was uploaded as `name="playlistImage"`. Navidrome's Go handler reads the file via `r.FormFile("image")`; requests with the wrong field name were rejected with 400 Bad Request.
+
+---
+
 ## [0.8.0] — 2026-05-13
 
 ### Added

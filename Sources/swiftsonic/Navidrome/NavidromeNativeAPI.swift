@@ -5,6 +5,9 @@
 // No coupling to SwiftSonicClient or the Subsonic protocol layer.
 
 import Foundation
+import os
+
+private let logger = Logger(subsystem: "swiftsonic", category: "NavidromeNativeAPI")
 
 /// Navidrome-native REST API client for playlist cover management.
 ///
@@ -33,6 +36,7 @@ public struct NavidromeNativeAPI: NavidromePlaylistCoverUploading {
         password: String
     ) async throws -> String {
         let url = baseURL.appendingPathComponent("auth/login")
+        logger.debug("NavidromeNativeAPI: authenticate → \(url.absoluteString, privacy: .public)")
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -53,6 +57,7 @@ public struct NavidromeNativeAPI: NavidromePlaylistCoverUploading {
             throw NavidromeNativeAPIError.networkError(underlying: error)
         }
 
+        logger.debug("NavidromeNativeAPI: authenticate status=\(response.statusCode, privacy: .public)")
         guard response.statusCode == 200 else {
             throw NavidromeNativeAPIError.authenticationFailed
         }
@@ -60,6 +65,7 @@ public struct NavidromeNativeAPI: NavidromePlaylistCoverUploading {
         guard let loginResponse = try? JSONDecoder().decode(LoginResponseBody.self, from: data) else {
             throw NavidromeNativeAPIError.invalidResponse
         }
+        logger.debug("NavidromeNativeAPI: JWT obtained")
         return loginResponse.token
     }
 
@@ -75,21 +81,29 @@ public struct NavidromeNativeAPI: NavidromePlaylistCoverUploading {
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        // Navidrome native /api/ endpoints require x-nd-authorization, not the standard
+        // Authorization header. Using Authorization results in a silent 401.
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "x-nd-authorization")
         request.setValue(
             "multipart/form-data; boundary=\(boundary)",
             forHTTPHeaderField: "Content-Type"
         )
         request.httpBody = multipartBody(imageData: imageData, mimeType: mimeType, boundary: boundary)
 
+        logger.debug("NavidromeNativeAPI: uploadPlaylistCover → \(url.absoluteString, privacy: .public)")
+
+        let responseData: Data
         let response: HTTPURLResponse
         do {
-            (_, response) = try await transport.data(for: request)
+            (responseData, response) = try await transport.data(for: request)
         } catch {
             throw NavidromeNativeAPIError.networkError(underlying: error)
         }
 
-        guard response.statusCode == 200 else {
+        logger.debug("NavidromeNativeAPI: upload status=\(response.statusCode, privacy: .public)")
+        guard (200...299).contains(response.statusCode) else {
+            let body = String(data: responseData, encoding: .utf8) ?? "<binary>"
+            logger.error("NavidromeNativeAPI: upload failed status=\(response.statusCode, privacy: .public) body=\(body, privacy: .public)")
             throw NavidromeNativeAPIError.uploadFailed(statusCode: response.statusCode)
         }
     }
@@ -112,7 +126,8 @@ public struct NavidromeNativeAPI: NavidromePlaylistCoverUploading {
         }
 
         append("--\(boundary)\(crlf)")
-        append("Content-Disposition: form-data; name=\"playlistImage\"; filename=\"\(filename)\"\(crlf)")
+        // Navidrome reads the file via r.FormFile("image") — field must be "image".
+        append("Content-Disposition: form-data; name=\"image\"; filename=\"\(filename)\"\(crlf)")
         append("Content-Type: \(mimeType)\(crlf)")
         append(crlf)
         body.append(imageData)
